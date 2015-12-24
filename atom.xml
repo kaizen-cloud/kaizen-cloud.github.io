@@ -1,0 +1,458 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title><![CDATA[Kaizen Cloud Blog]]></title>
+  <subtitle><![CDATA[GoogleAppsScriptでハッピーワークライフ]]></subtitle>
+  <link href="/atom.xml" rel="self"/>
+  <link href="http://blogs.kaizen-cloud.jp/"/>
+  <updated>2015-12-24T03:33:11.000Z</updated>
+  <id>http://blogs.kaizen-cloud.jp/</id>
+  
+  <author>
+    <name><![CDATA[Eiwa System Management, Inc.]]></name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[Google Apps Script でも require()したい]]></title>
+    <link href="http://blogs.kaizen-cloud.jp/2015/12/24/intruduce-gasify/"/>
+    <id>http://blogs.kaizen-cloud.jp/2015/12/24/intruduce-gasify/</id>
+    <published>2015-12-24T03:00:00.000Z</published>
+    <updated>2015-12-24T03:33:11.000Z</updated>
+    <content type="html"><![CDATA[<p>こんにちは、村上 (<a href="https://github.com/fossamagna" target="_blank" rel="external">@fossamagna</a>) です。</p>
+<p>今回はQiitaの <a href="http://qiita.com/advent-calendar/2015/gas" target="_blank" rel="external">Google Apps Script Advent Calendar 2015</a> に投稿した <a href="http://qiita.com/fossamagna/items/7c65e249e1e5ecad51ff" target="_blank" rel="external">記事</a> の転載です。<br>gasifyというツールを作成したので合わせてご紹介します。</p>
+<hr>
+<a id="more"></a>
+<h1 id="Google_Apps_Script_でも_require()したい">Google Apps Script でも <code>require()</code>したい</h1><p>普段、Node.jsのようなサーバサイドJavaScriptだったり、ブラウザ上のJavaScriptだったりをターゲットにして開発していると、<code>require()</code>使ってモジュール化してコードを作っていきますよね。<br>Google Apps Scriptでも同じような<code>require()</code>使えたらなーと思い試してみたので、その内容を紹介します。</p>
+<h2 id="Google_Apps_Script_のモジュール機能">Google Apps Script のモジュール機能</h2><p>Google Apps Scriptでは、公式に提供されている<a href="https://developers.google.com/apps-script/guide_libraries" target="_blank" rel="external">ライブラリ</a>がモジュール機能に当たります。ライブラリの機能は <code>ScriptEditor</code> で読み込みたい別のスクリプトのIDを指定して読み込むことができます(<strong>読み込みたいスクリプトに対する閲覧権限が必要です</strong>)。</p>
+<h2 id="ライブラリの困った点">ライブラリの困った点</h2><p>このライブラリ機能は使いたいスクリプトのIDを指定するだけで簡単にコードを再利用できるのですが、ある程度の規模のコードを書くようになると、次のような困った点が出てきます。</p>
+<ul>
+<li>ライブラリを追加する度に ScriptEditor の UI からID追加の操作しないといけない</li>
+<li><a href="https://developers.google.com/apps-script/best_practices#avoidLibraries" target="_blank" rel="external">スクリプトの起動に時間がかかる</a></li>
+</ul>
+<p>さらに、ライブラリの機能ではないのですが、Google Apps Scriptの困った点としてファイルの読み込み順を指定できないという問題があります。機能毎にgsファイルを分割して、それらに依存関係がある場合、gsファイルの読み込み順が重要になってきます。しかし、Google Apps Scriptはgsファイルの読み込み順を指定できないので読み込み順によっては期待した動作をしないという問題が起こります。</p>
+<h2 id="Browserifyでビルド">Browserifyでビルド</h2><p>そんな時、<code>require()</code>がネイティブで使えないのってブラウザも同じじゃないか？と思ったので、ブラウザで<code>require()</code>するための <a href="http://browserify.org/" target="_blank" rel="external">Browserify</a> を使えば、Google Apps Scriptでも<code>require()</code>できるかもと思い試してみました。</p>
+<p>動作を確認するために次のようなサンプルを用意しました。</p>
+<p>main.js:<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> hello = <span class="built_in">require</span>(<span class="string">'./hello'</span>);</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">callHello</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> hello();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>hello.js:<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">module</span>.exports = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="string">'Hello!'</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p><code>main.js</code>から<code>hello.js</code>を<code>require</code>して呼び出すだけのシンプルなものです。</p>
+<p>これをBrowserifyで1つのjsファイルにしてみます。以下のようにすると<code>main.js</code>をエントリーポイントとして依存する<code>js</code>ファイルを結合して<code>bundle.js</code>にまとめてくれます。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ browserify main.js -o bundle.js</span><br></pre></td></tr></table></figure>
+<h2 id="Google_Apps_Scriptで動かしてみる">Google Apps Scriptで動かしてみる</h2><p>さて、ScriptEditorを開いてを<code>Code.gs</code>に上記のコマンドで作成した <code>bundle.js</code> の内容をコピペして、<code>callHello()</code>関数を実行してみようとしたのですが、ScriptEditorの関数を選択するコンボボックスに<code>callHello()</code>関数が表示されません。</p>
+<p>どうも、<code>require()</code>を実現するためにBrowserifyの関数でラップされてしまっているのでScriptEditorから見えないようです。ScriptEditorから見えないだけで実行はできるんじゃないと思いクライアントサイドのJavaScriptから<code>google.script.run</code>を使って呼び出してみましたが、<code>callHello()</code>関数は見つけられず、実行できませんでした。</p>
+<p>いろいろ試した結果。<strong>グローバルオブジェクトに関数宣言文で関数を定義</strong> しないとScriptEditorからも<code>google.script.run</code>からも呼び出せないことがわかりました。</p>
+<p>以下のようなコードなら大丈夫ということです。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">callHello</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> hello = <span class="built_in">require</span>(<span class="string">'./hello'</span>);</span><br><span class="line">  <span class="keyword">return</span> hello();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Google_Apps_Script_特有の対応">Google Apps Script 特有の対応</h2><p>困りました、Browserifyで結合したらBrowserify関数でラップされてしまうのでグローバルオブジェクトに関数宣言文で関数を定義できません。しかし、Browserifyを使いながらなんとか関数を定義できないか試して次の条件なら呼び出せることがわかりました。</p>
+<ul>
+<li>Browserifyで生成した<code>bundle.js</code>より前に実行されるコードで関数宣言文を使って関数を定義(中身は空っぽでOK)する。</li>
+<li><code>bundle.js</code>内で上記の関数を上書きする。</li>
+</ul>
+<p>先ほどの例をこの条件に合うように直してみます。</p>
+<p>main.js:<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> hello = <span class="built_in">require</span>(<span class="string">'./hello'</span>);</span><br><span class="line">global.callHello = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123; <span class="comment">// `global`オブジェクトに関数を代入する</span></span><br><span class="line">  <span class="keyword">return</span> hello();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>hello.js</code>は変更ありません。</p>
+<p>この内容で<code>bundle.js</code>を生成します。さらに、生成された<code>bundle.js</code>の先頭に以下のコードを追加します。</p>
+<p>bundle.js:<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> global = <span class="keyword">this</span>;  <span class="comment">// グローバルオジェクトを`global`変数で参照できるようにする</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">callHello</span>(<span class="params"></span>) </span>&#123; <span class="comment">// Google Apps Scriptが呼び出せるように空の関数を定義する</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>このようにすることで、ScriptEditorからも<code>google.script.run</code>からも呼び出せるようになります。</p>
+<p>つまり、<code>bundle.js</code>を生成したら、</p>
+<ul>
+<li><code>var global = this;</code>を追加する</li>
+<li>呼び出したい関数の関数宣言文を追加する。<br>をしてあげれば万事OKです<img src="/images/emojis/v.png" width="20" height="20" class=" emoji nofancybox" title="v"></li>
+</ul>
+<p>って、これじゃ面倒くささ倍増です、素直にライブラリ使ったほうがマシです。<code>bundle.js</code>を生成するたびにそれを編集するなんてやってられません。</p>
+<p>少し工夫して追記が必要な内容だけを<code>stub.js</code>に書いて<code>bundle.js</code>を生成するコマンドを以下のようにすれば、修正の頻度はビルド毎から呼び出す関数が増える毎に減らすことはできます。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ browserify main.js | cat - stub.js &gt; bundle.js</span><br></pre></td></tr></table></figure>
+<p>でも、<code>main.js</code>とかに関数やロジックを追加して、さらに<code>stub.js</code>にも同じ名前の関数宣言文を追加するのも面倒です。きっと追加するのを忘れて、呼び出せなくて「あぁーー<img src="/images/emojis/anger.png" width="20" height="20" class=" emoji nofancybox" title="anger">」ってなります。</p>
+<h2 id="gasify">gasify</h2><p>そこで、<a href="https://www.npmjs.com/package/gasify" target="_blank" rel="external">gasify</a>という Browserify のプラグインを作りました。<code>gasify</code>を使うとGoogle Apps Scriptで動作させるために必要なコードも<code>bundle.js</code>に出力してくれます。これで呼び出す関数が増えても安心です。もう<code>stub.js</code>に追記は必要ありません。というか<code>stub.js</code>自体必要ないです。</p>
+<p>gasifyは以下のコマンドを実行してインストールできます。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm install gasify</span><br></pre></td></tr></table></figure>
+<p>使い方は<code>browserify</code>のプラグインとして<code>gassify</code>を指定するだけです。オプションなどはありません。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ browserify main.js -p gasify -o bundle.js</span><br></pre></td></tr></table></figure>
+<p>これで、「あぁーー<img src="/images/emojis/anger.png" width="20" height="20" class=" emoji nofancybox" title="anger">」とならずに Google Apps Scriptで<code>require()</code>を使えますね<img src="/images/emojis/smile.png" width="20" height="20" class=" emoji nofancybox" title="smile"></p>
+<p><a href="https://www.npmjs.com/package/gas-manager" target="_blank" rel="external">gas-manager</a>という便利なツールがあります。<code>gas-manager</code>を使えばコマンドで<code>bundle.js</code>の内容をGASプロジェクトに反映させることができるので、コピペせずにさらに楽になります。</p>
+<h2 id="まとめ">まとめ</h2><ul>
+<li>Browserify + gasify で Google Apps Scriptでも<code>require()</code>が使える</li>
+<li>gas-manager を使うとより便利</li>
+</ul>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>こんにちは、村上 (<a href="https://github.com/fossamagna">@fossamagna</a>) です。</p>
+<p>今回はQiitaの <a href="http://qiita.com/advent-calendar/2015/gas">Google Apps Script Advent Calendar 2015</a> に投稿した <a href="http://qiita.com/fossamagna/items/7c65e249e1e5ecad51ff">記事</a> の転載です。<br>gasifyというツールを作成したので合わせてご紹介します。</p>
+<hr>]]>
+    
+    </summary>
+    
+      <category term="AppsScript" scheme="http://blogs.kaizen-cloud.jp/tags/AppsScript/"/>
+    
+      <category term="gasify" scheme="http://blogs.kaizen-cloud.jp/tags/gasify/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[KAIZENクラウドのユーザー様事例を追加しました]]></title>
+    <link href="http://blogs.kaizen-cloud.jp/2015/12/11/case-of-muranaka/"/>
+    <id>http://blogs.kaizen-cloud.jp/2015/12/11/case-of-muranaka/</id>
+    <published>2015-12-11T09:00:00.000Z</published>
+    <updated>2015-12-24T03:33:11.000Z</updated>
+    <content type="html"><![CDATA[<p>岡島です。こんにちは</p>
+<p><a href="http://www.esm.co.jp/service/kaizen_cloud/" target="_blank" rel="external">KAIZENクラウドのランディングページ</a>から「事例新聞」のダウンロードができるようになりました。</p>
+<p>事例新聞とはKAIZENクラウドのお客様向けのミニ情報誌で、主に福井県内のお客様に配布したり、イベントで配布しています。今回、良い感じに仕上がったので一般公開することにしました。サイズ大きめのPDFなのですが、「KAIZENクラウドって何？」という方は、一度読んでいただけると嬉しいです。</p>
+<p>とはいえ、限られた紙面ではすべて説明するのは難しいので、この場を借りてKAIZENクラウドの開発の進め方を補足説明させていただくことにしました。</p>
+<a id="more"></a>
+<h1 id="開発者が全て担当する">開発者が全て担当する</h1><p>原則、開発者が、仕様の取りまとめから設計・プログラミング・テスト・運用サポートまですべて担当します。ただし、開発者とは別に「KAIZENエージェント」と呼ばれるお客様対応メンバーがつくこともあります。KAIZENエージェントは、お客様と一緒にどのような改善策が効果的かを考え、整理する責務を負います。今回の事例では、私がKAIZENエージェント兼開発者でしたが、遠隔地のお客様の場合は、例えば東京のKAIZENエージェントと福井の開発者など、別の人間が担当します。</p>
+<h1 id="お客様とは毎週会う">お客様とは毎週会う</h1><p>というのも、KAIZENクラウドでは、「お客様となるべく顔を合わせる」ことを重視しているからです。もちろんGoogleハングアウトも活用しますが、よほど遠くない限りはできるだけ会いに行きます。</p>
+<p>村中建設様の場合、打ち合わせは概ね以下の内容でした。</p>
+<ul>
+<li>デモ（先週進捗した内容をお見せして、フィードバックをいただく）</li>
+<li>質疑応答（決めていただきたい仕様の確認など）</li>
+<li>作戦会議（システムをスムースに導入するにあたっての相談）</li>
+</ul>
+<p>効果的だったのは作戦会議だと感じます。現場の方に気持よく使っていただくためには、システムの機能だけでなく、「どのような順番で導入するか」「誰を巻き込んでいくか」など、いわゆる発注者側の立場を理解する必要がありますが、そのような話は、顔を合わせてでないと突っ込めないものであり、そのために毎週顔を出すのです。</p>
+<h1 id="GoogleAppsScriptでプログラムを書く">GoogleAppsScriptでプログラムを書く</h1><p>このようにお客様との濃密な時間を過ごしながらも、一番時間をかけるのは、やはりプログラミングです。</p>
+<p>開発者は打ち合わせで得られたフィードバックを元に、GoogleAppsScript（GAS）でコードを書き、システムを組み上げていきます。このあたりは通常のソフトウェア開発となんら変わるものではありません。</p>
+<p>一つ特徴があるとすれば、GASではGmailやカレンダーにSpreadSheetなど、GoogleAppsの豊富なサービスにAPI経由でアクセスできるところにあります。簡単にメールを送信したり、カレンダーに予定を登録したり、シートから値を読み取ったりすることができます。</p>
+<p>KAIZENクラウドはお客様の業務効率化を支援する開発サービスですので、これら日常のタスクをシステムに組み込み、自動化できるGASはとても頼りになる開発言語です。</p>
+<p>ただし、GASは開発環境が発展途上であり、いろいろと面倒な制約や制限もあります。性能を担保するのも簡単ではありません。レスポンスを上げるためにクライアントサイドのJavaScript（GoogleAppsはWebアプリケーションも開発することができ、jQueryやその他クライアントサイドフレームワークも普通に利用できます）で頑張ったり、Googleの用意したAPI呼び出し回数を減らしたりなど、色々泥臭い工夫をしています。（※これらの工夫については、引き続きこのブログを通じて発信していきます！）</p>
+<h1 id="機能をひとつずつリリースする">機能をひとつずつリリースする</h1><p>KAIZENクラウドの特徴は、継続的にシステムをアップデートできる「保守モード」なのですが、最初のリリースに盛り込みたい要件はお客様と事前合意（つまりコミット）します。</p>
+<p>ただし、出来上がった機能はその都度リリースし、なるべく早くお使いいただけるようにしています。KAIZENクラウドで実現するシステムは、GoogleApps上で動作する比較的シンプルな機能の集まりであり、大規模なシステムテストが不要で、機能単位でリリース可能な場合が多いためです。</p>
+<p>ポイントはひとつずつリリースすることです。一度に多くの機能をリリースしようと欲張らず、実際の現場の方に理解が得られるよう、リリースする順番をお客様とご相談させていただきながら、リリースを繰り返します。今回事例に取り上げさせていただいた村中建設様の場合、「一番現場からニーズのある工事実績の検索機能を最初にリリースし、しばらく使ってもらってGoogleAppsになじんでいただく」作戦を取りました。逆に、しばらく使ってもらった結果、「複雑すぎる」との判断で、大幅に機能を削減した機能もあります。</p>
+<h1 id="お客様と手分けする">お客様と手分けする</h1><p>最後に、村中建設様とのお仕事で実感したのは、お客様と仕事を手分けすることの大切さです。</p>
+<p>今回のシステムでは、SpreadSheetで既存のExcel帳票を再現し、それらのシートをワークフローするような機能を実現しています。帳票のフォーマットはテンプレート化されているのですが、フォントを大きくしたりといったデザイン変更は、システム担当のお客様に担当いただいております。</p>
+<p>これにより、実際の現場の方の要望を、よりスピーディーに組み上げることが可能になりました。システムはあくまでお客様のものであり、一番親しみを持っていただけるのもお客様です。お客様と私達との協力関係で、システムをより良いものに育て上げることができていることを嬉しく思います。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>岡島です。こんにちは</p>
+<p><a href="http://www.esm.co.jp/service/kaizen_cloud/">KAIZENクラウドのランディングページ</a>から「事例新聞」のダウンロードができるようになりました。</p>
+<p>事例新聞とはKAIZENクラウドのお客様向けのミニ情報誌で、主に福井県内のお客様に配布したり、イベントで配布しています。今回、良い感じに仕上がったので一般公開することにしました。サイズ大きめのPDFなのですが、「KAIZENクラウドって何？」という方は、一度読んでいただけると嬉しいです。</p>
+<p>とはいえ、限られた紙面ではすべて説明するのは難しいので、この場を借りてKAIZENクラウドの開発の進め方を補足説明させていただくことにしました。</p>]]>
+    
+    </summary>
+    
+      <category term="お知らせ" scheme="http://blogs.kaizen-cloud.jp/tags/%E3%81%8A%E7%9F%A5%E3%82%89%E3%81%9B/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[Java bean mappingでプチ感動＆プチ試行錯誤]]></title>
+    <link href="http://blogs.kaizen-cloud.jp/2015/11/11/Java-Bean-Mapping/"/>
+    <id>http://blogs.kaizen-cloud.jp/2015/11/11/Java-Bean-Mapping/</id>
+    <published>2015-11-11T09:07:40.000Z</published>
+    <updated>2015-11-16T12:57:19.000Z</updated>
+    <content type="html"><![CDATA[<p>はじめまして。酒井です。</p>
+<p>現在、Javaでの開発プロジェクトに参加しています。<br>Java自体はスマホアプリ開発でも使っていたので馴染みはあるのですが、今回はWebサービスということで、色々と初めてで勝手が分からないことだらけで、チームにフォローしてもらいながら作業を進めています。</p>
+<p>今回は、開発中に出会ったBeanマッパーを紹介します。</p>
+<a id="more"></a>
+<p>Beanマッピングとは、ヒトコトで言うと、BeanからBeanへのフィールドコピーです。<br><a href="https://terasolunaorg.github.io/guideline/public_review/ArchitectureInDetail/Utilities/Dozer.html" target="_blank" rel="external">こちら</a>の解説が簡潔で分かりやすかったです。</p>
+<p>現プロジェクトの担当箇所にて、ある一連の処理で、中間のオブジェクトから出力に使うオブジェクトへ値をコピーする必要があり、「こんなの手で書くもんじゃないだろう」と思って、メンバーに聞いたりググったりしてみました。</p>
+<h2 id="MapStruct">MapStruct</h2><p>まず試してみたのは<a href="http://mapstruct.org/" target="_blank" rel="external">MapStruct</a>。</p>
+<p>リフレクションではなくコード生成するタイプのもので、高速に動作するのがウリ。</p>
+<p><code>ClassA</code>から<code>ClassB</code>へのマッピングを行う場合、以下のような<code>interface</code>を定義します。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="annotation">@Mapper</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">AMapper</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  AMapper INSTANCE = Mappers.getMapper(AMapper.class);</span><br><span class="line"></span><br><span class="line">  <span class="function">ClassB <span class="title">toB</span><span class="params">(ClassA a)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>interface</code>名および変換メソッド名は自由です。</li>
+<li><code>INSTANCE</code>はマッピングを行う際に利用します。</li>
+</ul>
+<p>マッピングする方のコードは以下のようになります。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ClassA a = <span class="keyword">new</span> ClassA();</span><br><span class="line"><span class="comment">// aに色々と設定</span></span><br><span class="line">ClassB b = AMapper.INSTANCE.toB(a);</span><br></pre></td></tr></table></figure>
+<p>双方同じ名前のフィールド／プロパティ（<code>xxxx</code>というフィールドに対して<code>setXxxx()</code>と<code>getXxxx()</code>があるもの）でのコピーであれば、これだけで実現できます。<code>AMapper</code>の実装を書く必要もありません。素晴らしい。</p>
+<p>ところが。</p>
+<p>残念ながらMapStructは採用しませんでした。何故かと言うと・・・僕が怠惰だったからです。</p>
+<p><code>ClassA</code>が以下のようなフィールドを持っていて、</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ClassA</span> </span>&#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">int</span> field1;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">int</span> field2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>各フィールドに対する<code>setter</code>/<code>getter</code>を書きたくなったのです。<br>Eclipseで自動生成してくれますが、そういうことじゃないんです。分かりますよね？(笑)</p>
+<p>プロジェクトで既に利用されていた<a href="https://projectlombok.org/" target="_blank" rel="external">Lombok</a>を使うと、</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="annotation">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ClassA</span> </span>&#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">int</span> field1;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">int</span> field2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>アノテーション１つで解決です。こうでないと。</p>
+<p>で、MapStructはLombokと相性が悪かったのです。LombokはJavaコンパイラに介入してコードを追加したりするのですが、MapStructがコードを生成するのはそれより前であるため、上記のクラス定義のまま、<code>private</code>フィールドで<code>setter</code>がない、という状況なので、エラーになってしまいました。</p>
+<p>MapStructを使うために手で<code>setter</code>/<code>getter</code>を書くか、それを避けるためにMapStructを諦めるか。<sup><a href="#note">[※]</a></sup></p>
+<p><strong>MapStruct諦めました。</strong></p>
+<h2 id="Orika">Orika</h2><p>MapStructを諦めて、<a href="https://github.com/orika-mapper/orika" target="_blank" rel="external">Orika</a>を試すことにしました。</p>
+<p>“Java Bean mapper”でググると、<a href="http://dozer.sourceforge.net/" target="_blank" rel="external">Dozer</a>というヤツの方が先に出てくるのですが、色々なところで速度比較が行われていて、遅いらしいということが分かったので、そこで比較対象として書かれていたOrikaに決めました。</p>
+<p>Orikaでは、<code>ClassA</code>と<code>ClassB</code>の例のような双方同じ名前のフィールドでのコピーであれば、MapStructのように事前定義が必要なものはありません。</p>
+<p>マッピングを行う側では、まず<code>MapperFactory</code>のインスタンスを取得します。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MapperFactory mapperFactory = <span class="keyword">new</span> DefaultMapperFactory.Builder().build();</span><br></pre></td></tr></table></figure>
+<p>上記は毎回行う必要はなく、シングルトンインスタンスとして保持しておきます。<br>プロジェクトではSpringを使っているので、DIで対応しました。</p>
+<p>マッピングは以下のようにします。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">MapperFacade mapper = mapperFactory.getMapperFacade();</span><br><span class="line"></span><br><span class="line">ClassA a = <span class="keyword">new</span> ClassA();</span><br><span class="line"><span class="comment">// aに色々と設定</span></span><br><span class="line">ClassB b = mapper.map(a, ClassB.class);</span><br></pre></td></tr></table></figure>
+<p>マッピング元と先が決まっている場合、さらに効率のよい<code>BoundMapperFacade</code>を利用できます。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">BoundMapperFacade&lt;ClassA, ClassB&gt; mapper = mapperFactory.getMapperFacade(ClassA.class, ClassB.class);</span><br><span class="line"></span><br><span class="line">ClassA a = <span class="keyword">new</span> ClassA();</span><br><span class="line"><span class="comment">// aに色々と設定</span></span><br><span class="line">ClassB b = mapper.map(a);</span><br></pre></td></tr></table></figure>
+<p>Javaでバリバリ開発してきた方には当たり前は話かも知れないのですが、長年関わってきた組み込み開発ではこれが必要な状況にならず、今まで出会わずに来たので、ちょっと感動。</p>
+<p>以上です。</p>
+<hr>
+<p>(2015-11-12追記)<br>※<a name="note"></a><a href="https://github.com/mapstruct/mapstruct-examples" target="_blank" rel="external">両方を使う例</a>はあるのですが、プロジェクトを分ける必要があります。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>はじめまして。酒井です。</p>
+<p>現在、Javaでの開発プロジェクトに参加しています。<br>Java自体はスマホアプリ開発でも使っていたので馴染みはあるのですが、今回はWebサービスということで、色々と初めてで勝手が分からないことだらけで、チームにフォローしてもらいながら作業を進めています。</p>
+<p>今回は、開発中に出会ったBeanマッパーを紹介します。</p>]]>
+    
+    </summary>
+    
+      <category term="Java" scheme="http://blogs.kaizen-cloud.jp/tags/Java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[東京Node学園祭2015に行ってきた]]></title>
+    <link href="http://blogs.kaizen-cloud.jp/2015/11/08/nodefest-2015/"/>
+    <id>http://blogs.kaizen-cloud.jp/2015/11/08/nodefest-2015/</id>
+    <published>2015-11-08T05:50:28.000Z</published>
+    <updated>2015-11-16T12:57:19.000Z</updated>
+    <content type="html"><![CDATA[<p>こんにちは、村上 (<a href="https://github.com/fossamagna" target="_blank" rel="external">@fossamagna</a>) です。</p>
+<p>昨日(11/07)開催された <a href="http://nodefest.jp/2015/" target="_blank" rel="external">東京Node学園祭2015</a> に参加してきました。今回は、その時のことをご紹介したいと思います。</p>
+<a id="more"></a>
+<h2 id="東京Node学園祭">東京Node学園祭</h2><p>東京Node学園祭2015はNode.js日本ユーザーグループ主催のNode.jsのイベントで日本で最大規模のNode.jsカンファレンスです。参会者も400人と多く、海外からの有名ゲストの講演あり、NodeSchoolのワークショップありとイベント目白押しで丸一日本当にNode.jsを勉強して楽しめるイベントでした。因みに、東京Node学園祭は今年で5回目だそうですが、私は初参加でした。</p>
+<p>イベントでの講演された方のスライドなどは、今日、明日で多くの方がブログで紹介されると思う<sup><a href="#annotation1">[1]</a></sup>ので、このブログでは一つ一つを取り上げて紹介はしないでおきます。個人的にとても面白かったのは <a href="https://twitter.com/kosamari" target="_blank" rel="external">@kosamari</a> の <a href="http://kosamari.com/presentation/nodefest-2015/#/0" target="_blank" rel="external">Electroknit！</a> という発表です。ネタバレになてしまうので内容はここには書きません。ぜひスライドをみてください。本当に面白い発表です。</p>
+<h2 id="コミュニケーション">コミュニケーション</h2><p>学園祭という名前の通りお祭り的な楽しさもあり、初参加の私でも非常に楽しめました。</p>
+<p>主催者の方々は参加者同士がコミュニケーションを取りやすいようにと色々工夫されていたようです。懇親会の後に <a href="https://twitter.com/dshaw" target="_blank" rel="external">Dan Shaw</a>, <a href="https://twitter.com/rvagg" target="_blank" rel="external">Rod Vagg</a> と直接話す機会<sup><a href="#annotation2">[2]</a></sup>を作って頂いたり、ひとりで初めてイベントに参加した私でも多くの人たちと話すことができました。</p>
+<p>最後ですが、運営の方々、本当にありがとうございます。自分も含めて参加者のみなさんとても楽しんでいたのではないかと思います。また来年も参加したいと思います。いや〜、本当楽しかった。</p>
+<hr>
+<ol>
+<li><a name="annotation1"></a><a href="https://www.google.co.jp/search?q=%E6%9D%B1%E4%BA%ACNode%E5%AD%A6%E5%9C%92%E7%A5%AD%202015&amp;rct=j" target="_blank" rel="external">東京Node学園祭 2015 で検索する</a> とたくさんのブログ記事がヒットします。</li>
+<li><a name="annotation2"></a>Node.jsのコアな部分へのコントリビュートするには、どこから初めていくといいかなどの話題でした。とても参考になりました。</li>
+</ol>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>こんにちは、村上 (<a href="https://github.com/fossamagna">@fossamagna</a>) です。</p>
+<p>昨日(11/07)開催された <a href="http://nodefest.jp/2015/">東京Node学園祭2015</a> に参加してきました。今回は、その時のことをご紹介したいと思います。</p>]]>
+    
+    </summary>
+    
+      <category term="Node.js" scheme="http://blogs.kaizen-cloud.jp/tags/Node-js/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[Electron ハンズオン]]></title>
+    <link href="http://blogs.kaizen-cloud.jp/2015/11/04/electron-hands-on/"/>
+    <id>http://blogs.kaizen-cloud.jp/2015/11/04/electron-hands-on/</id>
+    <published>2015-11-04T05:30:59.000Z</published>
+    <updated>2015-11-16T12:57:19.000Z</updated>
+    <content type="html"><![CDATA[<p>こんにちは、村上 (<a href="https://github.com/fossamagna" target="_blank" rel="external">@fossamagna</a>) です。</p>
+<p>今回は、10月22日に永和システムマネジメント東京支社で <a href="http://electron.atom.io/" target="_blank" rel="external">Electron</a> のハンズオンを社内イベントとして開催したので、その内容と様子をご紹介したいと思います。</p>
+<a id="more"></a>
+<h2 id="Electronとは">Electronとは</h2><p><a href="http://electron.atom.io/" target="_blank" rel="external">Electron</a> は GitHub がオープンソースで開発しているデスクトップアプリを開発するためのプラットフォームです。Electronを使うとHTML, CSS, JavaScriptなどのWebの技術を利用してデスクトップアプリを開発できます。GitHub の Atom エディタや Microsoft の Visual Studio Code なども Electron をベースに作られています。</p>
+<p>Webアプリの開発経験しかないけど、デスクトップアプリの開発をやってみたい人などには、Electronを使ったデスクトップアプリ開発は始めやすいのではないでしょうか。<br>また、既存のWebサービスをデスクトップアプリとして提供するといった場合にもHTML, CSS, JavaScriptを利用して開発できるので、Webサービスの資産を利用して素早く開発ができると思います。</p>
+<p>永和システムマネジメントのアジャイル事業部が開発している <a href="https://idobata.io/" target="_blank" rel="external">idobata</a> というチャットサービスがあります。その <a href="https://github.com/hrysd/idobata-electron" target="_blank" rel="external">idobata の非公式クライアント</a>も Electron ベースです。</p>
+<h2 id="ハンズオン">ハンズオン</h2><p>では、Electronを題材にしたハンズオンのお話です。ハンズオンは1時間で「Markdownのプレビュー表示とPDF変換ができるElectronアプリ」を作成するという内容です。<br>ハンズオンにはアジャイル事業部、ITサービス事業部のメンバーが10名以上参加してくれました。<br>1時間という時間でしたが、参加者のみなさんはElectronで利用するWeb系の技術には慣れているので、初めてでもハンズオンの最後にはアプリを完成させて、動作させるまでできていました。</p>
+<p>ハンズオン当日に使用した資料は <a href="https://github.com/fossamagna/electron-md2pdf-hands-on/wiki/Electron-Hands-On" target="_blank" rel="external">GitHubのWikiページ</a> で公開しています。資料を読んでけば、一人でも進められるようになっていると思うので、興味が出た人は是非ハンズオンを試してみてください。<br>ハンズオンで作成したアプリのソースコードも<a href="https://github.com/fossamagna/electron-md2pdf-hands-on" target="_blank" rel="external">GitHub</a> で公開しているので、アプリを動作だけさせてみたいという人はこちらからチェックアウトして下さい。</p>
+<h2 id="おまけ">おまけ</h2><p>Electronのハンズオンを開催した日には、<a href="https://gist.github.com/mtsmfm/4b8ffb53ffac055f5843" target="_blank" rel="external">ESM オフラインどう書く</a> というイベントも開催されました。私もそのイベントに参加しましたが。制限時間内には解くことはできませんでした。15分のロスタイムをもらってなんとか<a href="https://gist.github.com/fossamagna/ab2208f767b26c301415" target="_blank" rel="external">Node.jsで解く</a>ことができました。こちらも非常に面白いイベントだったので是非挑戦してみてください。ESM オフラインどう書くのイベントの自体は<a href="http://mtsmfm.github.io/2015/10/22/esm-doukaku.html" target="_blank" rel="external">こちらのブログ</a> で紹介されているので一緒にみてもらえるといいと思います。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>こんにちは、村上 (<a href="https://github.com/fossamagna">@fossamagna</a>) です。</p>
+<p>今回は、10月22日に永和システムマネジメント東京支社で <a href="http://electron.atom.io/">Electron</a> のハンズオンを社内イベントとして開催したので、その内容と様子をご紹介したいと思います。</p>]]>
+    
+    </summary>
+    
+      <category term="Electron" scheme="http://blogs.kaizen-cloud.jp/tags/Electron/"/>
+    
+      <category term="Node.js" scheme="http://blogs.kaizen-cloud.jp/tags/Node-js/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[Spring REST Docsの紹介]]></title>
+    <link href="http://blogs.kaizen-cloud.jp/2015/09/30/spring-restdocs-1/"/>
+    <id>http://blogs.kaizen-cloud.jp/2015/09/30/spring-restdocs-1/</id>
+    <published>2015-09-30T12:06:49.000Z</published>
+    <updated>2015-11-16T12:57:19.000Z</updated>
+    <content type="html"><![CDATA[<p>こんにちは、村上です。</p>
+<p>今回は、私が最近プロジェクトで使用している <a href="http://projects.spring.io/spring-restdocs/" target="_blank" rel="external">Spring REST Docs</a> <sup><a href="#annotation1">[1]</a></sup>という Java のライブラリを紹介します。<br>Spring REST Docsを使うと <a href="http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#spring-mvc-test-framework" target="_blank" rel="external">Spring MVC Test</a> で自動生成したスニペットと手書きのドキュメントを組み合わせ RESTfulなサービスのドキュメントを作成できます。</p>
+<a id="more"></a>
+<h2 id="Spring_REST_Docs_で出来ること">Spring REST Docs で出来ること</h2><p>Spring REST Docsを使うと次のようなことができます。</p>
+<ul>
+<li>Spring MVC Test を実行した結果をスニペット(Asciidoc)として出力できます。テストが失敗した時はスニペットは生成されません。</li>
+<li>自分で手書きしたドキュメント(Asciidoc)とスニペットを組み合わせられます。</li>
+</ul>
+<p>基本は以上です。シンプルです。シンプルですが、Spring MVC Test を実行した結果から生成されるスニペットを利用するので、ソースコードに対する<strong>正しい</strong>仕様のドキュメントを作成できます<sup><a href="#annotation2">[2]</a></sup>。ドキュメントが置いてけぼり….なんてのはよく聞く話です。Spring REST Docs を使えばテストが成功した時だけドキュメントが生成されるので、ドキュメントだけ置いてけぼりというを防げます。</p>
+<p>Spring REST Docs のスニペットはAsciidocのファイルとして出力されます。なので、生成された後は<a href="http://asciidoctor.org/" target="_blank" rel="external">Asciidoctor</a>などのツールをつかってHTMLやPDFなど好みのフォーマットに変換できます。</p>
+<h3 id="スニペット">スニペット</h3><p>Spring MVC Test を実行した結果から標準で生成できるスニペットには次のようなものがあります。</p>
+<ul>
+<li>テスト実行時と同じリクエストを送信する<code>curl</code>コマンド</li>
+<li>テスト実行時HTTPリクスト、HTTPレスポンス</li>
+<li>リクエスト、レスポンスのペイロードのドキュメント(JSON, XMLをサポートしています)</li>
+</ul>
+<p>Spring REST Docsは標準のスニペットの生成に <a href="https://mustache.github.io/" target="_blank" rel="external">Mustache</a> のテンプレートを使っていて、カスタムのテンプレートを指定することで標準のスニペットの出力をカスタマイズすることもできます。<br>さらにスニペットの生成は <a href="http://docs.spring.io/spring-restdocs/docs/1.0.0.RC1/api/org/springframework/restdocs/snippet/Snippet.html" target="_blank" rel="external">Snippet</a> インタフェースを実装すれば任意のスニペットを出力することもできます。</p>
+<h2 id="まとめ">まとめ</h2><p>今回は、Spring REST Docs というライブラリとそれで何ができるか、できそうかを紹介しました。<br>次回は、Spring REST Docs を使って実際にスニペットを出力するまでを紹介したいと思います。</p>
+<hr>
+<ol>
+<li><a name="annotation1"></a>このブログ記事を書いている時点では 1.0.0.RC1が最新ですが、まもなく1.0.0.RELEASEがリリースされそうな状況です。次回の記事が公開される頃には1.0.0.RELEASEがリリースされているかもしれません。</li>
+<li><a name="annotation2"></a>REST APIのドキュメントを生成できる <a href="http://swagger.io/" target="_blank" rel="external">Swagger</a> もあります。Swagger は REST API の仕様をYamlで表現し、様々なツールでそれを利用するツールです。ドキュメントだけでなく、ソースコードを生成したりもできます。Spring REST Docsはテストを通して<strong>正しい</strong>ドキュメントを作成することに焦点を当てている点が Swagger とは違います。</li>
+</ol>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>こんにちは、村上です。</p>
+<p>今回は、私が最近プロジェクトで使用している <a href="http://projects.spring.io/spring-restdocs/">Spring REST Docs</a> <sup><a href="#annotation1">[1]</a></sup>という Java のライブラリを紹介します。<br>Spring REST Docsを使うと <a href="http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#spring-mvc-test-framework">Spring MVC Test</a> で自動生成したスニペットと手書きのドキュメントを組み合わせ RESTfulなサービスのドキュメントを作成できます。</p>]]>
+    
+    </summary>
+    
+      <category term="Java" scheme="http://blogs.kaizen-cloud.jp/tags/Java/"/>
+    
+      <category term="Spring RESTDocs" scheme="http://blogs.kaizen-cloud.jp/tags/Spring-RESTDocs/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[中小エンドユーザーの業務効率化とアジャイル]]></title>
+    <link href="http://blogs.kaizen-cloud.jp/2015/09/02/small-business-agile/"/>
+    <id>http://blogs.kaizen-cloud.jp/2015/09/02/small-business-agile/</id>
+    <published>2015-09-02T04:33:11.000Z</published>
+    <updated>2015-11-16T12:57:19.000Z</updated>
+    <content type="html"><![CDATA[<p>岡島です。こんにちは。</p>
+<p>今回は、究極のアジャイル同人誌である「<a href="http://ultimateagilestories.web.fc2.com/bookcontents5.html" target="_blank" rel="external">Ultimate Agile Stories　-Iteration 5</a>」に寄稿させていただいた記事を転載します。記事をまとめるにあたってKAIZENクラウドでの経験も大きかったからです。</p>
+<a id="more"></a>
+<hr>
+<p>私はここ最近、地元福井の中小企業の業務効率化を支援するプロジェクトをいくつか担当しています。今日はいくつかのお客様の事例を題材に、業務効率化プロジェクトにアジャイル開発を適用することの意義について語ります。</p>
+<p>ちなみにここでの「業務効率化」プロジェクトの典型は、①帳票メインの事務システム、②リプレイス案件、③低予算で短納期、です。</p>
+<p>「利益を生み出すシステムではないので費用はかけられない」＆「現場で広く使われている帳票や画面の変更は抵抗が大きい」などといった理由（言い訳）でディフェンシブな開発になりがちで、既存システムを新しいバージョンの技術に置き換えただけの失敗プロジェクトで終わることも多いです。</p>
+<h1 id="開発が始まる前から現場担当を巻き込む">開発が始まる前から現場担当を巻き込む</h1><p>そうならないよう、もっとも意識するのは「現場の声の収集」です。業務効率化と一言でいってもお客様の思いは様々で、それらを全て受け止めていては収拾がつきません。かといって、我々開発者との窓口となるシステム部門の声だけで進めても、大概は最後に「こんなんじゃない」と言われて四苦八苦することになります。</p>
+<p>それを防ぐ意味でも、現場で実際にシステムを利用する現場担当をプロジェクトに巻き込まなくてはいけません。具体的に一番困っている人を紹介いただき、現状の業務ヒアリングをしつつ、以下に挙げるような項目を握っていきます。</p>
+<ul>
+<li>システムで実現したい具体的な効果とそれを実現しうる機能<ul>
+<li>例えば「1日かかっている作業を1時間で終わらせたい！」</li>
+</ul>
+</li>
+<li>これだけは譲れないこと<ul>
+<li>例えば「外部に出しているのでこの帳票のフォーマットは変更できない」<br>実際は一度の打合せで終わるようなことはないので、何度かに分けて、「実現したい業務効率化の形」を両者で徹底的に整理していきます。</li>
+</ul>
+</li>
+</ul>
+<h1 id="業務効率化のMVPは何か？">業務効率化のMVPは何か？</h1><p>業務効率化プロジェクトでリーンキャンバスやインセプションデッキなどの道具を使うことは（めったに）ありませんが、MVP（Minimum Viable Product）に相当するものはあります。</p>
+<p>MVPは先ほど挙げた「システムで実現したい具体的な効果とそれを実現しうる機能」・「ここだけは譲れないこと」の中にあります。本当にお客様が欲しいと思う新機能や機能改善をMVPとして抽出し、お客様と合意しましょう。私の場合、現場の方から「これだけで相当お仕事楽になりますね！」と、納得いただけた段階でお見積りをし、ご契約いただいて、プロジェクトを開始します。</p>
+<h1 id="現場密着開発ならではの難しさ">現場密着開発ならではの難しさ</h1><p>やることリストを合意し開発に着手した後は、（開発するシステムの規模にもよりますが）一週間から二週間に一度はデモを実施し、フィードバックをいただきます。これがスクラムでいうところのスプリントなのですが、現場のお客様に密着し開発するプロジェクトの場合は、以下のようなことが発生することがあります。</p>
+<ul>
+<li>複数プロダクトオーナー</li>
+<li>受け入れテストしてくれない問題</li>
+</ul>
+<p>まず、お客様の担当業務によってプロダクトオーナーが分かれることがあります。お客様によってはIT部門がなく、窓口を一本化することが難しい場合も多いのです。この場合はスプリントごとにフォーカスする業務を分け、バランスよく開発を進めていくと良いでしょう。さもないと、「あちらの担当分ばかり進捗している」などと不安がられ、余計な気を遣う羽目になります。</p>
+<p>さらに悩ましいのは「受け入れテストしてくれない問題」です。現場のお客様がスプリントごとに受け入れテストしてくれるので良いフィードバックが早期に得られる。理屈ではそうなのですが、実際は業務が忙しい方が多く、テストを頼んでも実施できていないことがあります。</p>
+<p>それで結局、「ごめんなさい。全部できてから最後にまとめてテストします」となりがちなのですが、それだとフィードバックの機会が減り、お互い辛い思いをすることになります。この問題の解決は難しいのですが、私は「スプリントのサイズを小さくする＝毎週なんとか時間をとっていただく」、さらに、「確認いただきたいポイントを絞る＝アジェンダとなる資料を作りこむ」ことで時間短縮を図っています。デモの場のコントロールをしやすくする策に心を砕きましょう。</p>
+<p>これ以外にも、「ごめんなさい！大事なこと伝え忘れていました」問題や、「突然打合せに偉い人が出てきてひっくりかえす問題」などの問題も発生しがちです。</p>
+<p>前者は、優先度をお聞きしたうえで後々のスプリントで対応することで納得いただき、後者はプロジェクトバッファを設け、スケジュールに余裕を持たせることで対応します（そんなにうまくいかないことも多いのですが…。現場担当の方としっかりコミュニケーションを取ることで人間関係を把握し、大物には早めに話を通すなどの手立ても必要です）。</p>
+<p>また、規模が小さいシステムの開発をお客様に密着して行うと、いわゆる「カウボーイ開発」っぽくなりがちです。お客様の業務に精通してくるほど、トリッキーで属人生の高い 成果物やプロセスが増えるのです。<br>このような状況はお互いのためになりません。たとえ一人プロジェクトとなってしまってもコードやドキュメントの管理は怠らず、お客様への報告や相談も記録に残せるよう意識してください。</p>
+<h1 id="一発でうまくゆくことなんて稀">一発でうまくゆくことなんて稀</h1><p>エンドユーザー、さらに現場担当のお客様に密着する開発案件はやりがいが多く楽しいことも多い反面、問題も発生しがちです。<br>プロジェクトにおける問題で一番苦しいのは「お客様の期待する価値を実現できないこと」ですが、アジャイル開発はこの問題を回避することができる。というより、「この問題を発生させないことを目指して生まれた手法」です。</p>
+<p>私は、アジャイル開発はユーザーに価値を届けられる手法として強力だと考えており、今後も、お客様のために試行錯誤しながら活用していきます。<br>何事も一発でうまくゆくことはありません。アジャイル開発が繰り返しフィードバックを得てゴールに近づいていくように、私たちもより良い開発者になれるよう、試行錯誤を続けていきましょう。</p>
+<p>以上</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>岡島です。こんにちは。</p>
+<p>今回は、究極のアジャイル同人誌である「<a href="http://ultimateagilestories.web.fc2.com/bookcontents5.html">Ultimate Agile Stories　-Iteration 5</a>」に寄稿させていただいた記事を転載します。記事をまとめるにあたってKAIZENクラウドでの経験も大きかったからです。</p>]]>
+    
+    </summary>
+    
+      <category term="agile" scheme="http://blogs.kaizen-cloud.jp/tags/agile/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[AppsScriptでスプレッドシートのセルにフォーマットを設定する]]></title>
+    <link href="http://blogs.kaizen-cloud.jp/2015/08/31/spreadsheet-number-format/"/>
+    <id>http://blogs.kaizen-cloud.jp/2015/08/31/spreadsheet-number-format/</id>
+    <published>2015-08-31T09:00:00.000Z</published>
+    <updated>2015-11-16T12:57:19.000Z</updated>
+    <content type="html"><![CDATA[<p>こんにちは、村上です。</p>
+<p>スプレッドシートを使っているとセルには様々な種類の値を入力すると思います。<br>また、入力した値のフォーマットを指定したりもすると思います。<br>AppsScriptからも同様にスプレッドシートに色々な値の入力やフォーマットの指定ができます。<br>今回は、スプレッドシートのセルにフォーマットを設定する方法を紹介します。</p>
+<a id="more"></a>
+<h2 id="フォーマットの指定">フォーマットの指定</h2><p>AppsScriptでは <a href="https://developers.google.com/apps-script/reference/spreadsheet/range#setNumberFormat%28String%29" target="_blank" rel="external">Range.setNumberFormat(String)</a> 関数でセルにフォーマットを指定できます。フォーマットは文字列で指定します。<br>この関数は<code>setNumberFormat</code>という名前の関数ですが、数値だけでなく日付の値のフォーマットも指定できます。</p>
+<p>例えば、次のコードは常に小数点3桁を表示するフォーマットを現在選択しているセルに指定しています。<br>コードを実行するとセルには<code>1.200</code>と表示されます。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> range = SpreadsheetApp.getActiveRange();</span><br><span class="line">range.setNumberFormat(<span class="string">'0.000'</span>);</span><br><span class="line">range.setValue(<span class="number">1.2</span>);</span><br></pre></td></tr></table></figure>
+<p>日付の場合は、次のように設定します。<br>この例では、現在日時を年月日、曜日、時分秒のフォーマット(例えば、<code>2015年8月31日 月曜日 21時58分16秒</code>)で表示するように指定しています。<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> range = SpreadsheetApp.getActiveRange();</span><br><span class="line">range.setNumberFormat(<span class="string">'yyyy年mm月dd日 dddd h時mm分ss秒'</span>);</span><br><span class="line">range.setValue(<span class="keyword">new</span> <span class="built_in">Date</span>());</span><br></pre></td></tr></table></figure></p>
+<p>このようにセルにフォーマットを指定すれば、利用者に対してより適切な形式で値を表示できるようになります。</p>
+<h2 id="フォーマットを指定しない場合の振る舞い">フォーマットを指定しない場合の振る舞い</h2><p>フォーマットを明示的に指定しない場合、自動でセルの値から推測されるフォーマットが適用されます。<br>例えば、文字列として<code>8-30</code>と入力すると<code>2015/8/30</code>と日付として値が設定されます。AppsScriptからこのセル値を取得すると<code>String</code>ではなく<code>Date</code>のオブジェクトが返ってきます。この振る舞いは次のコードで確認できます。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> range = SpreadsheetApp.getActiveRange();</span><br><span class="line">range.setValue(<span class="string">'8-31'</span>);</span><br><span class="line"><span class="keyword">var</span> value = range.getValue();</span><br><span class="line">Logger.log(value); <span class="comment">// "Mon Aug 31 00:00:00 GMT+09:00 2015"が出力される</span></span><br></pre></td></tr></table></figure>
+<p>この振る舞いは、セルの値として <code>Date</code> を期待している場合は問題ありませんが、<code>String</code> を期待している場合には厄介です。<br><code>String</code> を期待して値を設定したにもかかわらず値を取得すると <code>Date</code> になっているので、セルから取得できる値が <code>String</code> であることを前提にコーディングしていると期待したように動作しなくなってしまいます。</p>
+<p>このような場合、セルにフォーマットを指定することで期待した内容で値が設定されるようにします。<br>先ほどのコードの <code>8-31</code> をそのまま <code>String</code> として扱いたい場合は <code>@</code><sup><a href="#annotation1">[1]</a></sup>という文字列をフォーマットとして指定します。<br><code>8-31</code> が <code>String</code> として設定、取得できることは次のコードで確認できます。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> range = SpreadsheetApp.getActiveRange();</span><br><span class="line">range.setNumberFormat(<span class="string">'@'</span>); <span class="comment">// 文字列をそのまま表示するフォーマット</span></span><br><span class="line">range.setValue(<span class="string">'8-31'</span>);</span><br><span class="line"><span class="keyword">var</span> value = range.getValue();</span><br><span class="line">Logger.log(value); <span class="comment">// "8-31"が出力される</span></span><br></pre></td></tr></table></figure>
+<h2 id="まとめ">まとめ</h2><p>AppsScriptでスプレッドシートのセルにフォーマットを指定する方法を紹介しました。<br><a href="https://developers.google.com/apps-script/reference/spreadsheet/range#setNumberFormat%28String%29" target="_blank" rel="external">Range.setNumberFormat(String)</a> 関数でセルにフォーマットを指定できます。<br>フォーマットを指定しない場合には自動でフォーマットが適用されるので、必要に応じて明示的にフォーマットを指定するようにしましょう。</p>
+<hr>
+<ol>
+<li><a name="annotation1"></a><code>@</code> は入力された値を文字列のまま扱うフォーマットです。これ以外にも指定できるフォーマット文字列はドキュメントエディタヘルプの <a href="https://support.google.com/docs/answer/56470" target="_blank" rel="external">数値、日付、通貨の表示形式を設定する</a> で確認できます。</li>
+</ol>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>こんにちは、村上です。</p>
+<p>スプレッドシートを使っているとセルには様々な種類の値を入力すると思います。<br>また、入力した値のフォーマットを指定したりもすると思います。<br>AppsScriptからも同様にスプレッドシートに色々な値の入力やフォーマットの指定ができます。<br>今回は、スプレッドシートのセルにフォーマットを設定する方法を紹介します。</p>]]>
+    
+    </summary>
+    
+      <category term="AppsScript" scheme="http://blogs.kaizen-cloud.jp/tags/AppsScript/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[Apps Scriptをインポート・エクスポートする]]></title>
+    <link href="http://blogs.kaizen-cloud.jp/2015/06/02/gas-import-export/"/>
+    <id>http://blogs.kaizen-cloud.jp/2015/06/02/gas-import-export/</id>
+    <published>2015-06-02T11:39:57.000Z</published>
+    <updated>2015-11-16T12:57:19.000Z</updated>
+    <content type="html"><![CDATA[<p>こんにちは、村上 です。</p>
+<p>Google Apps Script はブラウザ上の Script Editor で書いて動作確認ができるので、ブラウザだけあれば開発が始められます。変更履歴の管理もされているので、コードを過去のものに戻したりなんかもできたりします。<br>でも、gitなどのバージョン管理ツールに慣れている開発者だと、正直これだけじゃつらい、複数人で開発しようとしたときもつらい、とてもつらいです。そこで、今回は Apps Script のソースコードをバージョン管理するために App Script をローカルマシンに取り出す方法の紹介をしたいと思います。</p>
+<a id="more"></a>
+<p>Apps Scriptをバージョン管理ツールで管理するために、どうにかしてテキストファイルとしてコードをローカルマシン上に取り出す必要があります。Apps Scriptはそのあたりもちゃんと用意してくれています。<br>Google Drive SDKを使ってインポート・エクスポートができます。もちろん、<a href="https://developers.google.com/apps-script/import-export" target="_blank" rel="external">公式ドキュメント</a> にも書かれています。</p>
+<p><strong>ただし、インポート・エクスポートできるのは Standalone プロジェクトだけなので注意が必要です。コンテナ(SpreadsheetやDocument)に紐付いているApps Scriptはインポート・エクスポートできません。</strong></p>
+<p>公式ドキュメントを見ていただければわかるのですが、インポート・エクスポートは Google Drive の REST API を利用します。なので、特定の言語やツールに依存はしていませんから自分の好きな言語やツールを使ってインポート・エクスポートができます。<br>でも、インポート・エクスポートしたいだけなので、Google Drive API を直接呼び出すんじゃなくてもう少し簡単に済ませたいですよね。少なくとも私はそうしたい。</p>
+<p>そんな(私をはじめとして)簡単に済ませたい人にぴったりのツールがあるんです。これから紹介するツールを使えば自前で Google Drive API を呼び出さなくてもインポート・エクスポートができます。</p>
+<h2 id="Google_Plugin_for_Eclipse">Google Plugin for Eclipse</h2><p>Google が提供している GWT や GAE を利用して開発するのに便利な Eclipse プラグインです。このプラグインを使うと Apps Script を Eclipse のプロジェクトとしてインポートすることもできます。プラグインの内部では Google Drive API を利用しているので扱えるのはやはり Standalone のプロジェクトだけです。詳しい使い方は <a href="https://developers.google.com/eclipse/docs/apps_script" target="_blank" rel="external">公式ドキュメント</a> に図解入りで説明されています。<br>Apps Script をインポートするには Eclipse 上で Google アカウントでログインして、インポートしたい Apps Script のプロジェクトを選ぶだけです。Eclipse に慣れた開発者なんかはすぐに使い始められます。<br>Eclipse のエディタでgsファイルを保存すると、直後に Google Drive 上の Apps Script プロジェクトにも変更が反映されます。使い勝手としては Eclipse 上に Script Editor があるような感じです。</p>
+<h2 id="gas-manager">gas-manager</h2><p><a href="https://github.com/soundTricker/gas-manager" target="_blank" rel="external">gas-manager</a>は Node.js で動作するコマンドラインツールです。Node.js の環境があれば npm で次のようにインストールできます。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm install -g gas-manager</span><br></pre></td></tr></table></figure></p>
+<p>インストールすると <code>gas</code> コマンドが使えるようになります。エクスポートは <code>gas download</code>、インポートは <code>gas upload</code> のコマンドを実行すればいいだけです。このツールも Google Drive API を使用しています<sup><a href="#annotation1">[1]</a></sup>。<br>使い始めるにあたって <a href="https://console.developers.google.com" target="_blank" rel="external">Google Developer Console</a> でクライアントIDを作成して Drive API を有効にする必要があります。Google Plugin for Eclipse に比べると使い始めるまでに少し手間がかかります。でも、Google Plugin for Eclipse にない次のようなメリットもあります。</p>
+<ul>
+<li>自分の好きなタイミングで インポート・エクスポートができる。CLIなのでバッチ処理として実行することもできます。</li>
+<li>設定ファイル複数の環境を定義してインポート・エクスポートできる。例えば、1つのプロジェクトを別環境(Google Drive上の別々のApps Scriptファイル)にインポート・エクスポートすることもできます。<code>gas</code>コマンド<code>-e</code>オプションで切り替えができます。</li>
+</ul>
+<p>詳しい使い方は次のページが参考になります。</p>
+<ul>
+<li><a href="https://github.com/soundTricker/gas-manager" target="_blank" rel="external">gas-manager の README</a></li>
+<li><a href="http://qiita.com/zaki-yama/items/b2d137c2539e20c10138" target="_blank" rel="external">gas-managerを使ってGASのソースコードをローカルで管理する</a></li>
+</ul>
+<h2 id="まとめ">まとめ</h2><p>Apps Script をインポート・エクスポートするツールとして Google Plugin for Eclipse と gas-manager の2つのツールを紹介しました。ローカルマシンにエクスポートまでできてしまえば、あとは git などお好みのバージョン管理ツールを利用して自由にコードの管理ができます。</p>
+<p>最近、私は <a href="https://atom.io/" target="_blank" rel="external">Atom</a> + gas-manager で Apps Script を利用することが多いです。設定ファイルで複数の環境に対してインポート・エクスポートすることができるので、本番環境とテスト環境を使い分けるのにとても便利です。</p>
+<p>自分の開発スタイルに合わせてツールを使ってみてはどうでしょうか。</p>
+<hr>
+<ol>
+<li><a name="annotation1"></a>gas-manager だとコンテナに紐付いた AppsScript のエクスポートだけはできました。ただ、Google の公式ドキュメントではできないことになっているので、ある日突然できなくなってしまう可能性もあります。</li>
+</ol>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>こんにちは、村上 です。</p>
+<p>Google Apps Script はブラウザ上の Script Editor で書いて動作確認ができるので、ブラウザだけあれば開発が始められます。変更履歴の管理もされているので、コードを過去のものに戻したりなんかもできたりします。<br>でも、gitなどのバージョン管理ツールに慣れている開発者だと、正直これだけじゃつらい、複数人で開発しようとしたときもつらい、とてもつらいです。そこで、今回は Apps Script のソースコードをバージョン管理するために App Script をローカルマシンに取り出す方法の紹介をしたいと思います。</p>]]>
+    
+    </summary>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[KAIZENクラウドにようこそ]]></title>
+    <link href="http://blogs.kaizen-cloud.jp/2015/05/25/hello-kaizen-cloud/"/>
+    <id>http://blogs.kaizen-cloud.jp/2015/05/25/hello-kaizen-cloud/</id>
+    <published>2015-05-24T15:00:00.000Z</published>
+    <updated>2015-11-16T12:57:19.000Z</updated>
+    <content type="html"><![CDATA[<p>岡島です。こんにちは。</p>
+<p>２年前から、永和システムマネジメントの仲間たちと「次の事業立ち上げ活動」に従事しています。「次の事業」とは<a href="http://www.esm.co.jp/3in3/" target="_blank" rel="external">当社サイト</a> に掲げてるところの「esm.succ!」であり、具体的には新しい受託開発サービスを次々立ち上げるのが仕事です。</p>
+<p>いろいろと産みの苦しみを味わい、今年に入ってようやく第1弾のサービスである「KAIZENクラウド」を様々なお客様に使っていただける状況にたどり着きました。若干知見やノウハウも溜まってきこともあり、お客様だけでなく世の技術者の方々にも何か貢献したいという思いでこのブログを立ち上げました。技術ネタにとどまらず、いろいろと話題を提供できたらと考えますので、今後ともよろしくお願いします。</p>
+<h1 id="GoogleAppsで業務を効率化するKAIZENクラウド">GoogleAppsで業務を効率化するKAIZENクラウド</h1><p>少しだけ宣伝しておくと、第１弾サービスの<a href="http://www.esm.co.jp/service/kaizen_cloud/" target="_blank" rel="external">KAIZENクラウド</a>はGoogleApps上にお客様の業務システムを構築する受託開発サービスです。ターゲットのお客様は（実績では）製造・建設・医療系などの中小エンドユーザーで、初期構築用の開発モードと継続開発用の保守モードに契約が分かれます。</p>
+<p>ふわふわしがちなやりたいことを整理整頓し、初期構築の範囲で小さく構築・素早くリリース。その後保守開発を継続しながら、お客様の手に馴染む道具としてのシステムに磨き上げてく。そのようなイメージです。システムはすべてお客様のGoogleApps上にリリースし、我々がそれをリモートで保守させていただくため、何かあった場合の対応も素早く行えます。開発者がクラウドを通じてお客様とつながることで、継続的な業務の効率化に貢献できます（だから、「KAIZENクラウド」）。</p>
+<p>もうひとつ、「ふわふわしたやりたいこと」を、お客様と一緒に要件に落としこんでいく、KAIZENエージェントというフロント担当によるサポートも特徴です。目指すべき業務についてお客様と語り合うことでシステムの方向性を定め、その後は定期的に開発中のシステムのデモを繰り返すことで、お客様からのフィードバックを開発者に伝えます。</p>
+<p>最後にもう一つだけ。</p>
+<p>どのようなシステムが向いているかというと、「今までExcelやAccessでなんとか業務を回してきたけど、手入力や紙資料が多く効率が悪い」事務系のシステムは全般的に向いています。ExcelはGoogleSpreadsheetに置き換え、データの共有と業務の自動化を実現します（SpreadsheetはExcelになれたお客様にとって敷居が低い入力ツールです）。<br>CalendarやSiteと連携した仕組みも得意ですし、クライアントサイドのJavaScriptをフル活用する、いまどきのWebアプリも手軽に構築できます。</p>
+<p>…すいません。話が長くなりそうなので、具体的な事例はまたの機会に。</p>
+<h1 id="Google_Apps_Scriptを使い倒す日常">Google Apps Scriptを使い倒す日常</h1><p>私はいくつかのお客様にとってのKAIZENエージェントなのですが、同時にGoogle Apps Script（GAS）でコードを書く開発者です。GASはサーバーサイドで動くJavaScript＋Googleが提供する高レベルなAPI環境です。高レベル故向き不向きがあるので、便利さを実感したり苦労したりの毎日ですが、概ね私たちは気に入っていて、ブログのサブタイトルにも登場させています。</p>
+<p>「GoogleAppsScriptでハッピーワークライフ」というサブタイトルには、GASによってスピーディーに業務の効率化を支援することでお客様をハッピーしたいという思いはもちろん、おもしろい技術に関われる開発者にとってのハッピーさも追求したいという思いを込めました。</p>
+<h2 id="GASはエンドユーザーの業務効率化という目的に合致する">GASはエンドユーザーの業務効率化という目的に合致する</h2><p>KAIZENクラウドは中小のエンドユーザーを対象としており、費用をかけずにお客様の手になじむ業務システムを素早くサービスインすることにフォーカスしています。</p>
+<p>なので、やることも絞っています。不特定多数がアクセスするようなシステムには提案しませんし、基幹システムを構築する用途にはお勧めしません。帳票はOKですが、既存のExcel・Word帳票フォーマットの流用を優先します。一から帳票設計するようなケースはほとんどありません。独自のユーザー認証ではなくGoogleの認証を使っていただきます。</p>
+<p>（Googleが狙ってる領域なので当たり前なのですが）、このような「AccessやExcelでやってきた部門情報系システム」の構築にGASはマッチします。Goolgeが提供するAPIは強力で、SpreadsheetやDocumentをGASから簡単に扱えます。既存のExcelを自動でSpreadsheetに変換し、それをデータベースのように利用するkintoneのようなアプローチも大得意です。</p>
+<h2 id="Googleにロックインされているのか？">Googleにロックインされているのか？</h2><p>さて、このようにGoogleに乗っかった開発をしていると、心地よさと同時にロックインされているような不安を感じるかもしれません。私個人としては「全体としてはクローズだけど、そこに採用されている個々の技術はオープンだからいいか」ぐらいの割り切りです。GoogleのAPIは覚える必要がありますが、JavaScriptやHTMLの知識と経験は活かせますし、今後別のプラットフォームで開発をすることになっても役に立つでしょう。（GoogleのAPI廃止のまつわる苦労話は、また別の機会に書きます）</p>
+<p>ちなみに、「今どきのエコシステムを利用したAppsScript開発に取り組んでいる」仲間もいます。その取組もこのブログに書いてもらう予定なので、そちらもご期待ください。</p>
+<h1 id="営業もする開発者から、開発もする営業へ">営業もする開発者から、開発もする営業へ</h1><p>最後にすこし自分の話を。</p>
+<p>現場を継続し、評価をいただき、新しい引き合いをやご指名をいただきながらも、点から面に広げていくのが受託開発ビジネスのセオリーです。キャリアを積んだ受託開発SEの方なら、このセオリーに基づき、会社から「営業的な動き」を期待されることがあるかと思います。私もそうでした。お客様の信頼をいただき仕事を広げたり、それに必要な見積りや交渉ごとにも参加するようになってくる。こうやって、いつの間にか「営業もする開発者」にちょっとだけジョブチェンジしたつもりでした。</p>
+<p>でも、社内とはいえ事業を起こす立場になってみると、やっぱ、営業の仕方が全然違うことに気が付かされます。ゼロ状態からから顧客を見つけていくことの難しさよ。そうやって、苦労してつながったお客様に対しては、なんとか期待に応えたい気持ちの高まることよ。うらはらに事業として成り立つ採算性を確保する苦労。そして、お客様に正確かつスピーディーに応えるには、自分が開発できるぐらいの技術をキープしてないとダメだというずっしりとした実感。</p>
+<p>このような経験から、自分は今、「開発もする営業」を目指しています。<br>ちなみに私、KAIZENクラウドに限らず新規サービスの企画・マーケティング担当でもあります。そのあたりの話題も、おいおい書いていく予定なのでよろしくお願いいたします。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>岡島です。こんにちは。</p>
+<p>２年前から、永和システムマネジメントの仲間たちと「次の事業立ち上げ活動」に従事しています。「次の事業」とは<a href="http://www.esm.co.jp/3in3/" target="_blank" rel="externa]]>
+    </summary>
+    
+  </entry>
+  
+</feed>

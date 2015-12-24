@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Apps Scriptをインポート・エクスポートする | Kaizen Cloud Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="こんにちは、村上 です。
+Google Apps Script はブラウザ上の Script Editor で書いて動作確認ができるので、ブラウザだけあれば開発が始められます。変更履歴の管理もされているので、コードを過去のものに戻したりなんかもできたりします。でも、gitなどのバージョン管理ツールに慣れている開発者だと、正直これだけじゃつらい、複数人で開発しようとしたときもつらい、とてもつらいです">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Apps Scriptをインポート・エクスポートする">
+<meta property="og:url" content="http://blogs.kaizen-cloud.jp/2015/06/02/gas-import-export/index.html">
+<meta property="og:site_name" content="Kaizen Cloud Blog">
+<meta property="og:description" content="こんにちは、村上 です。
+Google Apps Script はブラウザ上の Script Editor で書いて動作確認ができるので、ブラウザだけあれば開発が始められます。変更履歴の管理もされているので、コードを過去のものに戻したりなんかもできたりします。でも、gitなどのバージョン管理ツールに慣れている開発者だと、正直これだけじゃつらい、複数人で開発しようとしたときもつらい、とてもつらいです">
+<meta property="og:updated_time" content="2015-11-16T12:57:19.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Apps Scriptをインポート・エクスポートする">
+<meta name="twitter:description" content="こんにちは、村上 です。
+Google Apps Script はブラウザ上の Script Editor で書いて動作確認ができるので、ブラウザだけあれば開発が始められます。変更履歴の管理もされているので、コードを過去のものに戻したりなんかもできたりします。でも、gitなどのバージョン管理ツールに慣れている開発者だと、正直これだけじゃつらい、複数人で開発しようとしたときもつらい、とてもつらいです">
+  
+    <link rel="alternative" href="/atom.xml" title="Kaizen Cloud Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-63347069-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+</head>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Kaizen Cloud Blog</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">GoogleAppsScriptでハッピーワークライフ</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/authors">Authors</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://blogs.kaizen-cloud.jp"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-gas-import-export" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/06/02/gas-import-export/" class="article-date">
+  <time datetime="2015-06-02T11:39:57.000Z" itemprop="datePublished">2015-06-02</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Apps Scriptをインポート・エクスポートする
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>こんにちは、村上 です。</p>
+<p>Google Apps Script はブラウザ上の Script Editor で書いて動作確認ができるので、ブラウザだけあれば開発が始められます。変更履歴の管理もされているので、コードを過去のものに戻したりなんかもできたりします。<br>でも、gitなどのバージョン管理ツールに慣れている開発者だと、正直これだけじゃつらい、複数人で開発しようとしたときもつらい、とてもつらいです。そこで、今回は Apps Script のソースコードをバージョン管理するために App Script をローカルマシンに取り出す方法の紹介をしたいと思います。</p>
+<a id="more"></a>
+<p>Apps Scriptをバージョン管理ツールで管理するために、どうにかしてテキストファイルとしてコードをローカルマシン上に取り出す必要があります。Apps Scriptはそのあたりもちゃんと用意してくれています。<br>Google Drive SDKを使ってインポート・エクスポートができます。もちろん、<a href="https://developers.google.com/apps-script/import-export" target="_blank" rel="external">公式ドキュメント</a> にも書かれています。</p>
+<p><strong>ただし、インポート・エクスポートできるのは Standalone プロジェクトだけなので注意が必要です。コンテナ(SpreadsheetやDocument)に紐付いているApps Scriptはインポート・エクスポートできません。</strong></p>
+<p>公式ドキュメントを見ていただければわかるのですが、インポート・エクスポートは Google Drive の REST API を利用します。なので、特定の言語やツールに依存はしていませんから自分の好きな言語やツールを使ってインポート・エクスポートができます。<br>でも、インポート・エクスポートしたいだけなので、Google Drive API を直接呼び出すんじゃなくてもう少し簡単に済ませたいですよね。少なくとも私はそうしたい。</p>
+<p>そんな(私をはじめとして)簡単に済ませたい人にぴったりのツールがあるんです。これから紹介するツールを使えば自前で Google Drive API を呼び出さなくてもインポート・エクスポートができます。</p>
+<h2 id="Google_Plugin_for_Eclipse">Google Plugin for Eclipse</h2><p>Google が提供している GWT や GAE を利用して開発するのに便利な Eclipse プラグインです。このプラグインを使うと Apps Script を Eclipse のプロジェクトとしてインポートすることもできます。プラグインの内部では Google Drive API を利用しているので扱えるのはやはり Standalone のプロジェクトだけです。詳しい使い方は <a href="https://developers.google.com/eclipse/docs/apps_script" target="_blank" rel="external">公式ドキュメント</a> に図解入りで説明されています。<br>Apps Script をインポートするには Eclipse 上で Google アカウントでログインして、インポートしたい Apps Script のプロジェクトを選ぶだけです。Eclipse に慣れた開発者なんかはすぐに使い始められます。<br>Eclipse のエディタでgsファイルを保存すると、直後に Google Drive 上の Apps Script プロジェクトにも変更が反映されます。使い勝手としては Eclipse 上に Script Editor があるような感じです。</p>
+<h2 id="gas-manager">gas-manager</h2><p><a href="https://github.com/soundTricker/gas-manager" target="_blank" rel="external">gas-manager</a>は Node.js で動作するコマンドラインツールです。Node.js の環境があれば npm で次のようにインストールできます。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm install -g gas-manager</span><br></pre></td></tr></table></figure></p>
+<p>インストールすると <code>gas</code> コマンドが使えるようになります。エクスポートは <code>gas download</code>、インポートは <code>gas upload</code> のコマンドを実行すればいいだけです。このツールも Google Drive API を使用しています<sup><a href="#annotation1">[1]</a></sup>。<br>使い始めるにあたって <a href="https://console.developers.google.com" target="_blank" rel="external">Google Developer Console</a> でクライアントIDを作成して Drive API を有効にする必要があります。Google Plugin for Eclipse に比べると使い始めるまでに少し手間がかかります。でも、Google Plugin for Eclipse にない次のようなメリットもあります。</p>
+<ul>
+<li>自分の好きなタイミングで インポート・エクスポートができる。CLIなのでバッチ処理として実行することもできます。</li>
+<li>設定ファイル複数の環境を定義してインポート・エクスポートできる。例えば、1つのプロジェクトを別環境(Google Drive上の別々のApps Scriptファイル)にインポート・エクスポートすることもできます。<code>gas</code>コマンド<code>-e</code>オプションで切り替えができます。</li>
+</ul>
+<p>詳しい使い方は次のページが参考になります。</p>
+<ul>
+<li><a href="https://github.com/soundTricker/gas-manager" target="_blank" rel="external">gas-manager の README</a></li>
+<li><a href="http://qiita.com/zaki-yama/items/b2d137c2539e20c10138" target="_blank" rel="external">gas-managerを使ってGASのソースコードをローカルで管理する</a></li>
+</ul>
+<h2 id="まとめ">まとめ</h2><p>Apps Script をインポート・エクスポートするツールとして Google Plugin for Eclipse と gas-manager の2つのツールを紹介しました。ローカルマシンにエクスポートまでできてしまえば、あとは git などお好みのバージョン管理ツールを利用して自由にコードの管理ができます。</p>
+<p>最近、私は <a href="https://atom.io/" target="_blank" rel="external">Atom</a> + gas-manager で Apps Script を利用することが多いです。設定ファイルで複数の環境に対してインポート・エクスポートすることができるので、本番環境とテスト環境を使い分けるのにとても便利です。</p>
+<p>自分の開発スタイルに合わせてツールを使ってみてはどうでしょうか。</p>
+<hr>
+<ol>
+<li><a name="annotation1"></a>gas-manager だとコンテナに紐付いた AppsScript のエクスポートだけはできました。ただ、Google の公式ドキュメントではできないことになっているので、ある日突然できなくなってしまう可能性もあります。</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <span itemprop="author">
+          Posted by <a href="/authors/#MURAKAMI_Masahiko">MURAKAMI Masahiko</a>
+        </span>
+      
+      <a data-url="http://blogs.kaizen-cloud.jp/2015/06/02/gas-import-export/" data-id="ciijp38ao000kswz6mpdpmjn9" class="article-share-link">Share</a>
+      
+        <a href="http://blogs.kaizen-cloud.jp/2015/06/02/gas-import-export/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2015/08/31/spreadsheet-number-format/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          AppsScriptでスプレッドシートのセルにフォーマットを設定する
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/05/25/hello-kaizen-cloud/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">KAIZENクラウドにようこそ</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AppsScript/">AppsScript</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Electron/">Electron</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Node-js/">Node.js</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring-RESTDocs/">Spring RESTDocs</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/agile/">agile</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gasify/">gasify</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/お知らせ/">お知らせ</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/AppsScript/" style="font-size: 20px;">AppsScript</a> <a href="/tags/Electron/" style="font-size: 10px;">Electron</a> <a href="/tags/Java/" style="font-size: 20px;">Java</a> <a href="/tags/Node-js/" style="font-size: 20px;">Node.js</a> <a href="/tags/Spring-RESTDocs/" style="font-size: 10px;">Spring RESTDocs</a> <a href="/tags/agile/" style="font-size: 10px;">agile</a> <a href="/tags/gasify/" style="font-size: 10px;">gasify</a> <a href="/tags/お知らせ/" style="font-size: 10px;">お知らせ</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Description</h3>
+    <div class="widget">
+      GoogleAppsをフル活用してお客様の業務効率化に日々邁進するエンジニアによるブログです。GoogleAppsScriptにこだわらず、幅広くゆるいテーマでお届けします。
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">12月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">11月 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">9月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">8月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">6月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">5月 2015</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2015/12/24/intruduce-gasify/">Google Apps Script でも require()したい</a>
+          </li>
+        
+          <li>
+            <a href="/2015/12/11/case-of-muranaka/">KAIZENクラウドのユーザー様事例を追加しました</a>
+          </li>
+        
+          <li>
+            <a href="/2015/11/11/Java-Bean-Mapping/">Java bean mappingでプチ感動＆プチ試行錯誤</a>
+          </li>
+        
+          <li>
+            <a href="/2015/11/08/nodefest-2015/">東京Node学園祭2015に行ってきた</a>
+          </li>
+        
+          <li>
+            <a href="/2015/11/04/electron-hands-on/">Electron ハンズオン</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2015 Eiwa System Management, Inc.
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/authors" class="mobile-nav-link">Authors</a>
+  
+</nav>
+    
+<script>
+  var disqus_shortname = 'kaizencloud';
+  
+  var disqus_url = 'http://blogs.kaizen-cloud.jp/2015/06/02/gas-import-export/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
+  <script src="/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
+
+
+<script src="/js/script.js" type="text/javascript"></script>
+
+  </div>
+</body>
+</html>

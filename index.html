@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Kaizen Cloud Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="GoogleAppsをフル活用してお客様の業務効率化に日々邁進するエンジニアによるブログです。GoogleAppsScriptにこだわらず、幅広くゆるいテーマでお届けします。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Kaizen Cloud Blog">
+<meta property="og:url" content="http://blogs.kaizen-cloud.jp/index.html">
+<meta property="og:site_name" content="Kaizen Cloud Blog">
+<meta property="og:description" content="GoogleAppsをフル活用してお客様の業務効率化に日々邁進するエンジニアによるブログです。GoogleAppsScriptにこだわらず、幅広くゆるいテーマでお届けします。">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Kaizen Cloud Blog">
+<meta name="twitter:description" content="GoogleAppsをフル活用してお客様の業務効率化に日々邁進するエンジニアによるブログです。GoogleAppsScriptにこだわらず、幅広くゆるいテーマでお届けします。">
+  
+    <link rel="alternative" href="/atom.xml" title="Kaizen Cloud Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-63347069-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+</head>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Kaizen Cloud Blog</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">GoogleAppsScriptでハッピーワークライフ</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/authors">Authors</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://blogs.kaizen-cloud.jp"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-intruduce-gasify" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/12/24/intruduce-gasify/" class="article-date">
+  <time datetime="2015-12-24T03:00:00.000Z" itemprop="datePublished">2015-12-24</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/12/24/intruduce-gasify/">Google Apps Script でも require()したい</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>こんにちは、村上 (<a href="https://github.com/fossamagna">@fossamagna</a>) です。</p>
+<p>今回はQiitaの <a href="http://qiita.com/advent-calendar/2015/gas">Google Apps Script Advent Calendar 2015</a> に投稿した <a href="http://qiita.com/fossamagna/items/7c65e249e1e5ecad51ff">記事</a> の転載です。<br>gasifyというツールを作成したので合わせてご紹介します。</p>
+<hr>
+        
+          <p class="article-more-link">
+            <a href="/2015/12/24/intruduce-gasify/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <span itemprop="author">
+          Posted by <a href="/authors/#MURAKAMI_Masahiko">MURAKAMI Masahiko</a>
+        </span>
+      
+      <a data-url="http://blogs.kaizen-cloud.jp/2015/12/24/intruduce-gasify/" data-id="ciijp38al000fswz6it32mzk4" class="article-share-link">Share</a>
+      
+        <a href="http://blogs.kaizen-cloud.jp/2015/12/24/intruduce-gasify/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/AppsScript/">AppsScript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gasify/">gasify</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-case-of-muranaka" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/12/11/case-of-muranaka/" class="article-date">
+  <time datetime="2015-12-11T09:00:00.000Z" itemprop="datePublished">2015-12-11</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/12/11/case-of-muranaka/">KAIZENクラウドのユーザー様事例を追加しました</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>岡島です。こんにちは</p>
+<p><a href="http://www.esm.co.jp/service/kaizen_cloud/">KAIZENクラウドのランディングページ</a>から「事例新聞」のダウンロードができるようになりました。</p>
+<p>事例新聞とはKAIZENクラウドのお客様向けのミニ情報誌で、主に福井県内のお客様に配布したり、イベントで配布しています。今回、良い感じに仕上がったので一般公開することにしました。サイズ大きめのPDFなのですが、「KAIZENクラウドって何？」という方は、一度読んでいただけると嬉しいです。</p>
+<p>とはいえ、限られた紙面ではすべて説明するのは難しいので、この場を借りてKAIZENクラウドの開発の進め方を補足説明させていただくことにしました。</p>
+        
+          <p class="article-more-link">
+            <a href="/2015/12/11/case-of-muranaka/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <span itemprop="author">
+          Posted by <a href="/authors/#Yukio_Okajima">Yukio Okajima</a>
+        </span>
+      
+      <a data-url="http://blogs.kaizen-cloud.jp/2015/12/11/case-of-muranaka/" data-id="ciijp38as000pswz6hezgsyto" class="article-share-link">Share</a>
+      
+        <a href="http://blogs.kaizen-cloud.jp/2015/12/11/case-of-muranaka/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/お知らせ/">お知らせ</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-Java-Bean-Mapping" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/11/11/Java-Bean-Mapping/" class="article-date">
+  <time datetime="2015-11-11T09:07:40.000Z" itemprop="datePublished">2015-11-11</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/11/11/Java-Bean-Mapping/">Java bean mappingでプチ感動＆プチ試行錯誤</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>はじめまして。酒井です。</p>
+<p>現在、Javaでの開発プロジェクトに参加しています。<br>Java自体はスマホアプリ開発でも使っていたので馴染みはあるのですが、今回はWebサービスということで、色々と初めてで勝手が分からないことだらけで、チームにフォローしてもらいながら作業を進めています。</p>
+<p>今回は、開発中に出会ったBeanマッパーを紹介します。</p>
+        
+          <p class="article-more-link">
+            <a href="/2015/11/11/Java-Bean-Mapping/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <span itemprop="author">
+          Posted by <a href="/authors/#SAKAI_Yoshihito">SAKAI Yoshihito</a>
+        </span>
+      
+      <a data-url="http://blogs.kaizen-cloud.jp/2015/11/11/Java-Bean-Mapping/" data-id="ciijp38au000sswz6u3aipgh8" class="article-share-link">Share</a>
+      
+        <a href="http://blogs.kaizen-cloud.jp/2015/11/11/Java-Bean-Mapping/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-nodefest-2015" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/11/08/nodefest-2015/" class="article-date">
+  <time datetime="2015-11-08T05:50:28.000Z" itemprop="datePublished">2015-11-08</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/11/08/nodefest-2015/">東京Node学園祭2015に行ってきた</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>こんにちは、村上 (<a href="https://github.com/fossamagna">@fossamagna</a>) です。</p>
+<p>昨日(11/07)開催された <a href="http://nodefest.jp/2015/">東京Node学園祭2015</a> に参加してきました。今回は、その時のことをご紹介したいと思います。</p>
+        
+          <p class="article-more-link">
+            <a href="/2015/11/08/nodefest-2015/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <span itemprop="author">
+          Posted by <a href="/authors/#MURAKAMI_Masahiko">MURAKAMI Masahiko</a>
+        </span>
+      
+      <a data-url="http://blogs.kaizen-cloud.jp/2015/11/08/nodefest-2015/" data-id="ciijp38aj000cswz6anktdtbu" class="article-share-link">Share</a>
+      
+        <a href="http://blogs.kaizen-cloud.jp/2015/11/08/nodefest-2015/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node-js/">Node.js</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-electron-hands-on" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/11/04/electron-hands-on/" class="article-date">
+  <time datetime="2015-11-04T05:30:59.000Z" itemprop="datePublished">2015-11-04</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/11/04/electron-hands-on/">Electron ハンズオン</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>こんにちは、村上 (<a href="https://github.com/fossamagna">@fossamagna</a>) です。</p>
+<p>今回は、10月22日に永和システムマネジメント東京支社で <a href="http://electron.atom.io/">Electron</a> のハンズオンを社内イベントとして開催したので、その内容と様子をご紹介したいと思います。</p>
+        
+          <p class="article-more-link">
+            <a href="/2015/11/04/electron-hands-on/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <span itemprop="author">
+          Posted by <a href="/authors/#MURAKAMI_Masahiko">MURAKAMI Masahiko</a>
+        </span>
+      
+      <a data-url="http://blogs.kaizen-cloud.jp/2015/11/04/electron-hands-on/" data-id="ciijp38aq000lswz6rajub4lx" class="article-share-link">Share</a>
+      
+        <a href="http://blogs.kaizen-cloud.jp/2015/11/04/electron-hands-on/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Electron/">Electron</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node-js/">Node.js</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-spring-restdocs-1" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/09/30/spring-restdocs-1/" class="article-date">
+  <time datetime="2015-09-30T12:06:49.000Z" itemprop="datePublished">2015-09-30</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/09/30/spring-restdocs-1/">Spring REST Docsの紹介</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>こんにちは、村上です。</p>
+<p>今回は、私が最近プロジェクトで使用している <a href="http://projects.spring.io/spring-restdocs/">Spring REST Docs</a> <sup><a href="#annotation1">[1]</a></sup>という Java のライブラリを紹介します。<br>Spring REST Docsを使うと <a href="http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#spring-mvc-test-framework">Spring MVC Test</a> で自動生成したスニペットと手書きのドキュメントを組み合わせ RESTfulなサービスのドキュメントを作成できます。</p>
+        
+          <p class="article-more-link">
+            <a href="/2015/09/30/spring-restdocs-1/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <span itemprop="author">
+          Posted by <a href="/authors/#MURAKAMI_Masahiko">MURAKAMI Masahiko</a>
+        </span>
+      
+      <a data-url="http://blogs.kaizen-cloud.jp/2015/09/30/spring-restdocs-1/" data-id="ciijp38a80001swz61isf9gyb" class="article-share-link">Share</a>
+      
+        <a href="http://blogs.kaizen-cloud.jp/2015/09/30/spring-restdocs-1/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Spring-RESTDocs/">Spring RESTDocs</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-small-business-agile" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/09/02/small-business-agile/" class="article-date">
+  <time datetime="2015-09-02T04:33:11.000Z" itemprop="datePublished">2015-09-02</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/09/02/small-business-agile/">中小エンドユーザーの業務効率化とアジャイル</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>岡島です。こんにちは。</p>
+<p>今回は、究極のアジャイル同人誌である「<a href="http://ultimateagilestories.web.fc2.com/bookcontents5.html">Ultimate Agile Stories　-Iteration 5</a>」に寄稿させていただいた記事を転載します。記事をまとめるにあたってKAIZENクラウドでの経験も大きかったからです。</p>
+        
+          <p class="article-more-link">
+            <a href="/2015/09/02/small-business-agile/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <span itemprop="author">
+          Posted by <a href="/authors/#Yukio_Okajima">Yukio Okajima</a>
+        </span>
+      
+      <a data-url="http://blogs.kaizen-cloud.jp/2015/09/02/small-business-agile/" data-id="ciijp38ah0009swz6b11qj6ae" class="article-share-link">Share</a>
+      
+        <a href="http://blogs.kaizen-cloud.jp/2015/09/02/small-business-agile/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/agile/">agile</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-spreadsheet-number-format" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/08/31/spreadsheet-number-format/" class="article-date">
+  <time datetime="2015-08-31T09:00:00.000Z" itemprop="datePublished">2015-08-31</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/08/31/spreadsheet-number-format/">AppsScriptでスプレッドシートのセルにフォーマットを設定する</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>こんにちは、村上です。</p>
+<p>スプレッドシートを使っているとセルには様々な種類の値を入力すると思います。<br>また、入力した値のフォーマットを指定したりもすると思います。<br>AppsScriptからも同様にスプレッドシートに色々な値の入力やフォーマットの指定ができます。<br>今回は、スプレッドシートのセルにフォーマットを設定する方法を紹介します。</p>
+        
+          <p class="article-more-link">
+            <a href="/2015/08/31/spreadsheet-number-format/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <span itemprop="author">
+          Posted by <a href="/authors/#MURAKAMI_Masahiko">MURAKAMI Masahiko</a>
+        </span>
+      
+      <a data-url="http://blogs.kaizen-cloud.jp/2015/08/31/spreadsheet-number-format/" data-id="ciijp38ag0006swz6rwo36xlg" class="article-share-link">Share</a>
+      
+        <a href="http://blogs.kaizen-cloud.jp/2015/08/31/spreadsheet-number-format/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/AppsScript/">AppsScript</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-gas-import-export" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/06/02/gas-import-export/" class="article-date">
+  <time datetime="2015-06-02T11:39:57.000Z" itemprop="datePublished">2015-06-02</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/06/02/gas-import-export/">Apps Scriptをインポート・エクスポートする</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>こんにちは、村上 です。</p>
+<p>Google Apps Script はブラウザ上の Script Editor で書いて動作確認ができるので、ブラウザだけあれば開発が始められます。変更履歴の管理もされているので、コードを過去のものに戻したりなんかもできたりします。<br>でも、gitなどのバージョン管理ツールに慣れている開発者だと、正直これだけじゃつらい、複数人で開発しようとしたときもつらい、とてもつらいです。そこで、今回は Apps Script のソースコードをバージョン管理するために App Script をローカルマシンに取り出す方法の紹介をしたいと思います。</p>
+        
+          <p class="article-more-link">
+            <a href="/2015/06/02/gas-import-export/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <span itemprop="author">
+          Posted by <a href="/authors/#MURAKAMI_Masahiko">MURAKAMI Masahiko</a>
+        </span>
+      
+      <a data-url="http://blogs.kaizen-cloud.jp/2015/06/02/gas-import-export/" data-id="ciijp38ao000kswz6mpdpmjn9" class="article-share-link">Share</a>
+      
+        <a href="http://blogs.kaizen-cloud.jp/2015/06/02/gas-import-export/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-hello-kaizen-cloud" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/05/25/hello-kaizen-cloud/" class="article-date">
+  <time datetime="2015-05-24T15:00:00.000Z" itemprop="datePublished">2015-05-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/05/25/hello-kaizen-cloud/">KAIZENクラウドにようこそ</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>岡島です。こんにちは。</p>
+<p>２年前から、永和システムマネジメントの仲間たちと「次の事業立ち上げ活動」に従事しています。「次の事業」とは<a href="http://www.esm.co.jp/3in3/" target="_blank" rel="external">当社サイト</a> に掲げてるところの「esm.succ!」であり、具体的には新しい受託開発サービスを次々立ち上げるのが仕事です。</p>
+<p>いろいろと産みの苦しみを味わい、今年に入ってようやく第1弾のサービスである「KAIZENクラウド」を様々なお客様に使っていただける状況にたどり着きました。若干知見やノウハウも溜まってきこともあり、お客様だけでなく世の技術者の方々にも何か貢献したいという思いでこのブログを立ち上げました。技術ネタにとどまらず、いろいろと話題を提供できたらと考えますので、今後ともよろしくお願いします。</p>
+<h1 id="GoogleAppsで業務を効率化するKAIZENクラウド">GoogleAppsで業務を効率化するKAIZENクラウド</h1><p>少しだけ宣伝しておくと、第１弾サービスの<a href="http://www.esm.co.jp/service/kaizen_cloud/" target="_blank" rel="external">KAIZENクラウド</a>はGoogleApps上にお客様の業務システムを構築する受託開発サービスです。ターゲットのお客様は（実績では）製造・建設・医療系などの中小エンドユーザーで、初期構築用の開発モードと継続開発用の保守モードに契約が分かれます。</p>
+<p>ふわふわしがちなやりたいことを整理整頓し、初期構築の範囲で小さく構築・素早くリリース。その後保守開発を継続しながら、お客様の手に馴染む道具としてのシステムに磨き上げてく。そのようなイメージです。システムはすべてお客様のGoogleApps上にリリースし、我々がそれをリモートで保守させていただくため、何かあった場合の対応も素早く行えます。開発者がクラウドを通じてお客様とつながることで、継続的な業務の効率化に貢献できます（だから、「KAIZENクラウド」）。</p>
+<p>もうひとつ、「ふわふわしたやりたいこと」を、お客様と一緒に要件に落としこんでいく、KAIZENエージェントというフロント担当によるサポートも特徴です。目指すべき業務についてお客様と語り合うことでシステムの方向性を定め、その後は定期的に開発中のシステムのデモを繰り返すことで、お客様からのフィードバックを開発者に伝えます。</p>
+<p>最後にもう一つだけ。</p>
+<p>どのようなシステムが向いているかというと、「今までExcelやAccessでなんとか業務を回してきたけど、手入力や紙資料が多く効率が悪い」事務系のシステムは全般的に向いています。ExcelはGoogleSpreadsheetに置き換え、データの共有と業務の自動化を実現します（SpreadsheetはExcelになれたお客様にとって敷居が低い入力ツールです）。<br>CalendarやSiteと連携した仕組みも得意ですし、クライアントサイドのJavaScriptをフル活用する、いまどきのWebアプリも手軽に構築できます。</p>
+<p>…すいません。話が長くなりそうなので、具体的な事例はまたの機会に。</p>
+<h1 id="Google_Apps_Scriptを使い倒す日常">Google Apps Scriptを使い倒す日常</h1><p>私はいくつかのお客様にとってのKAIZENエージェントなのですが、同時にGoogle Apps Script（GAS）でコードを書く開発者です。GASはサーバーサイドで動くJavaScript＋Googleが提供する高レベルなAPI環境です。高レベル故向き不向きがあるので、便利さを実感したり苦労したりの毎日ですが、概ね私たちは気に入っていて、ブログのサブタイトルにも登場させています。</p>
+<p>「GoogleAppsScriptでハッピーワークライフ」というサブタイトルには、GASによってスピーディーに業務の効率化を支援することでお客様をハッピーしたいという思いはもちろん、おもしろい技術に関われる開発者にとってのハッピーさも追求したいという思いを込めました。</p>
+<h2 id="GASはエンドユーザーの業務効率化という目的に合致する">GASはエンドユーザーの業務効率化という目的に合致する</h2><p>KAIZENクラウドは中小のエンドユーザーを対象としており、費用をかけずにお客様の手になじむ業務システムを素早くサービスインすることにフォーカスしています。</p>
+<p>なので、やることも絞っています。不特定多数がアクセスするようなシステムには提案しませんし、基幹システムを構築する用途にはお勧めしません。帳票はOKですが、既存のExcel・Word帳票フォーマットの流用を優先します。一から帳票設計するようなケースはほとんどありません。独自のユーザー認証ではなくGoogleの認証を使っていただきます。</p>
+<p>（Googleが狙ってる領域なので当たり前なのですが）、このような「AccessやExcelでやってきた部門情報系システム」の構築にGASはマッチします。Goolgeが提供するAPIは強力で、SpreadsheetやDocumentをGASから簡単に扱えます。既存のExcelを自動でSpreadsheetに変換し、それをデータベースのように利用するkintoneのようなアプローチも大得意です。</p>
+<h2 id="Googleにロックインされているのか？">Googleにロックインされているのか？</h2><p>さて、このようにGoogleに乗っかった開発をしていると、心地よさと同時にロックインされているような不安を感じるかもしれません。私個人としては「全体としてはクローズだけど、そこに採用されている個々の技術はオープンだからいいか」ぐらいの割り切りです。GoogleのAPIは覚える必要がありますが、JavaScriptやHTMLの知識と経験は活かせますし、今後別のプラットフォームで開発をすることになっても役に立つでしょう。（GoogleのAPI廃止のまつわる苦労話は、また別の機会に書きます）</p>
+<p>ちなみに、「今どきのエコシステムを利用したAppsScript開発に取り組んでいる」仲間もいます。その取組もこのブログに書いてもらう予定なので、そちらもご期待ください。</p>
+<h1 id="営業もする開発者から、開発もする営業へ">営業もする開発者から、開発もする営業へ</h1><p>最後にすこし自分の話を。</p>
+<p>現場を継続し、評価をいただき、新しい引き合いをやご指名をいただきながらも、点から面に広げていくのが受託開発ビジネスのセオリーです。キャリアを積んだ受託開発SEの方なら、このセオリーに基づき、会社から「営業的な動き」を期待されることがあるかと思います。私もそうでした。お客様の信頼をいただき仕事を広げたり、それに必要な見積りや交渉ごとにも参加するようになってくる。こうやって、いつの間にか「営業もする開発者」にちょっとだけジョブチェンジしたつもりでした。</p>
+<p>でも、社内とはいえ事業を起こす立場になってみると、やっぱ、営業の仕方が全然違うことに気が付かされます。ゼロ状態からから顧客を見つけていくことの難しさよ。そうやって、苦労してつながったお客様に対しては、なんとか期待に応えたい気持ちの高まることよ。うらはらに事業として成り立つ採算性を確保する苦労。そして、お客様に正確かつスピーディーに応えるには、自分が開発できるぐらいの技術をキープしてないとダメだというずっしりとした実感。</p>
+<p>このような経験から、自分は今、「開発もする営業」を目指しています。<br>ちなみに私、KAIZENクラウドに限らず新規サービスの企画・マーケティング担当でもあります。そのあたりの話題も、おいおい書いていく予定なのでよろしくお願いいたします。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <span itemprop="author">
+          Posted by <a href="/authors/#Yukio_Okajima">Yukio Okajima</a>
+        </span>
+      
+      <a data-url="http://blogs.kaizen-cloud.jp/2015/05/25/hello-kaizen-cloud/" data-id="ciijp38an000jswz6naowxrgy" class="article-share-link">Share</a>
+      
+        <a href="http://blogs.kaizen-cloud.jp/2015/05/25/hello-kaizen-cloud/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+  
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AppsScript/">AppsScript</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Electron/">Electron</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Node-js/">Node.js</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring-RESTDocs/">Spring RESTDocs</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/agile/">agile</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gasify/">gasify</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/お知らせ/">お知らせ</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/AppsScript/" style="font-size: 20px;">AppsScript</a> <a href="/tags/Electron/" style="font-size: 10px;">Electron</a> <a href="/tags/Java/" style="font-size: 20px;">Java</a> <a href="/tags/Node-js/" style="font-size: 20px;">Node.js</a> <a href="/tags/Spring-RESTDocs/" style="font-size: 10px;">Spring RESTDocs</a> <a href="/tags/agile/" style="font-size: 10px;">agile</a> <a href="/tags/gasify/" style="font-size: 10px;">gasify</a> <a href="/tags/お知らせ/" style="font-size: 10px;">お知らせ</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Description</h3>
+    <div class="widget">
+      GoogleAppsをフル活用してお客様の業務効率化に日々邁進するエンジニアによるブログです。GoogleAppsScriptにこだわらず、幅広くゆるいテーマでお届けします。
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">12月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">11月 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">9月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">8月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">6月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">5月 2015</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2015/12/24/intruduce-gasify/">Google Apps Script でも require()したい</a>
+          </li>
+        
+          <li>
+            <a href="/2015/12/11/case-of-muranaka/">KAIZENクラウドのユーザー様事例を追加しました</a>
+          </li>
+        
+          <li>
+            <a href="/2015/11/11/Java-Bean-Mapping/">Java bean mappingでプチ感動＆プチ試行錯誤</a>
+          </li>
+        
+          <li>
+            <a href="/2015/11/08/nodefest-2015/">東京Node学園祭2015に行ってきた</a>
+          </li>
+        
+          <li>
+            <a href="/2015/11/04/electron-hands-on/">Electron ハンズオン</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2015 Eiwa System Management, Inc.
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/authors" class="mobile-nav-link">Authors</a>
+  
+</nav>
+    
+<script>
+  var disqus_shortname = 'kaizencloud';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/count.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
+  <script src="/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
+
+
+<script src="/js/script.js" type="text/javascript"></script>
+
+  </div>
+</body>
+</html>

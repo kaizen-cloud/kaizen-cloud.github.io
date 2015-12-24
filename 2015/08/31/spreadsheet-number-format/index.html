@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>AppsScriptでスプレッドシートのセルにフォーマットを設定する | Kaizen Cloud Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="こんにちは、村上です。
+スプレッドシートを使っているとセルには様々な種類の値を入力すると思います。また、入力した値のフォーマットを指定したりもすると思います。AppsScriptからも同様にスプレッドシートに色々な値の入力やフォーマットの指定ができます。今回は、スプレッドシートのセルにフォーマットを設定する方法を紹介します。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AppsScriptでスプレッドシートのセルにフォーマットを設定する">
+<meta property="og:url" content="http://blogs.kaizen-cloud.jp/2015/08/31/spreadsheet-number-format/index.html">
+<meta property="og:site_name" content="Kaizen Cloud Blog">
+<meta property="og:description" content="こんにちは、村上です。
+スプレッドシートを使っているとセルには様々な種類の値を入力すると思います。また、入力した値のフォーマットを指定したりもすると思います。AppsScriptからも同様にスプレッドシートに色々な値の入力やフォーマットの指定ができます。今回は、スプレッドシートのセルにフォーマットを設定する方法を紹介します。">
+<meta property="og:updated_time" content="2015-11-16T12:57:19.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AppsScriptでスプレッドシートのセルにフォーマットを設定する">
+<meta name="twitter:description" content="こんにちは、村上です。
+スプレッドシートを使っているとセルには様々な種類の値を入力すると思います。また、入力した値のフォーマットを指定したりもすると思います。AppsScriptからも同様にスプレッドシートに色々な値の入力やフォーマットの指定ができます。今回は、スプレッドシートのセルにフォーマットを設定する方法を紹介します。">
+  
+    <link rel="alternative" href="/atom.xml" title="Kaizen Cloud Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-63347069-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+</head>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Kaizen Cloud Blog</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">GoogleAppsScriptでハッピーワークライフ</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/authors">Authors</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://blogs.kaizen-cloud.jp"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-spreadsheet-number-format" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/08/31/spreadsheet-number-format/" class="article-date">
+  <time datetime="2015-08-31T09:00:00.000Z" itemprop="datePublished">2015-08-31</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      AppsScriptでスプレッドシートのセルにフォーマットを設定する
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>こんにちは、村上です。</p>
+<p>スプレッドシートを使っているとセルには様々な種類の値を入力すると思います。<br>また、入力した値のフォーマットを指定したりもすると思います。<br>AppsScriptからも同様にスプレッドシートに色々な値の入力やフォーマットの指定ができます。<br>今回は、スプレッドシートのセルにフォーマットを設定する方法を紹介します。</p>
+<a id="more"></a>
+<h2 id="フォーマットの指定">フォーマットの指定</h2><p>AppsScriptでは <a href="https://developers.google.com/apps-script/reference/spreadsheet/range#setNumberFormat%28String%29" target="_blank" rel="external">Range.setNumberFormat(String)</a> 関数でセルにフォーマットを指定できます。フォーマットは文字列で指定します。<br>この関数は<code>setNumberFormat</code>という名前の関数ですが、数値だけでなく日付の値のフォーマットも指定できます。</p>
+<p>例えば、次のコードは常に小数点3桁を表示するフォーマットを現在選択しているセルに指定しています。<br>コードを実行するとセルには<code>1.200</code>と表示されます。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> range = SpreadsheetApp.getActiveRange();</span><br><span class="line">range.setNumberFormat(<span class="string">'0.000'</span>);</span><br><span class="line">range.setValue(<span class="number">1.2</span>);</span><br></pre></td></tr></table></figure>
+<p>日付の場合は、次のように設定します。<br>この例では、現在日時を年月日、曜日、時分秒のフォーマット(例えば、<code>2015年8月31日 月曜日 21時58分16秒</code>)で表示するように指定しています。<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> range = SpreadsheetApp.getActiveRange();</span><br><span class="line">range.setNumberFormat(<span class="string">'yyyy年mm月dd日 dddd h時mm分ss秒'</span>);</span><br><span class="line">range.setValue(<span class="keyword">new</span> <span class="built_in">Date</span>());</span><br></pre></td></tr></table></figure></p>
+<p>このようにセルにフォーマットを指定すれば、利用者に対してより適切な形式で値を表示できるようになります。</p>
+<h2 id="フォーマットを指定しない場合の振る舞い">フォーマットを指定しない場合の振る舞い</h2><p>フォーマットを明示的に指定しない場合、自動でセルの値から推測されるフォーマットが適用されます。<br>例えば、文字列として<code>8-30</code>と入力すると<code>2015/8/30</code>と日付として値が設定されます。AppsScriptからこのセル値を取得すると<code>String</code>ではなく<code>Date</code>のオブジェクトが返ってきます。この振る舞いは次のコードで確認できます。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> range = SpreadsheetApp.getActiveRange();</span><br><span class="line">range.setValue(<span class="string">'8-31'</span>);</span><br><span class="line"><span class="keyword">var</span> value = range.getValue();</span><br><span class="line">Logger.log(value); <span class="comment">// "Mon Aug 31 00:00:00 GMT+09:00 2015"が出力される</span></span><br></pre></td></tr></table></figure>
+<p>この振る舞いは、セルの値として <code>Date</code> を期待している場合は問題ありませんが、<code>String</code> を期待している場合には厄介です。<br><code>String</code> を期待して値を設定したにもかかわらず値を取得すると <code>Date</code> になっているので、セルから取得できる値が <code>String</code> であることを前提にコーディングしていると期待したように動作しなくなってしまいます。</p>
+<p>このような場合、セルにフォーマットを指定することで期待した内容で値が設定されるようにします。<br>先ほどのコードの <code>8-31</code> をそのまま <code>String</code> として扱いたい場合は <code>@</code><sup><a href="#annotation1">[1]</a></sup>という文字列をフォーマットとして指定します。<br><code>8-31</code> が <code>String</code> として設定、取得できることは次のコードで確認できます。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> range = SpreadsheetApp.getActiveRange();</span><br><span class="line">range.setNumberFormat(<span class="string">'@'</span>); <span class="comment">// 文字列をそのまま表示するフォーマット</span></span><br><span class="line">range.setValue(<span class="string">'8-31'</span>);</span><br><span class="line"><span class="keyword">var</span> value = range.getValue();</span><br><span class="line">Logger.log(value); <span class="comment">// "8-31"が出力される</span></span><br></pre></td></tr></table></figure>
+<h2 id="まとめ">まとめ</h2><p>AppsScriptでスプレッドシートのセルにフォーマットを指定する方法を紹介しました。<br><a href="https://developers.google.com/apps-script/reference/spreadsheet/range#setNumberFormat%28String%29" target="_blank" rel="external">Range.setNumberFormat(String)</a> 関数でセルにフォーマットを指定できます。<br>フォーマットを指定しない場合には自動でフォーマットが適用されるので、必要に応じて明示的にフォーマットを指定するようにしましょう。</p>
+<hr>
+<ol>
+<li><a name="annotation1"></a><code>@</code> は入力された値を文字列のまま扱うフォーマットです。これ以外にも指定できるフォーマット文字列はドキュメントエディタヘルプの <a href="https://support.google.com/docs/answer/56470" target="_blank" rel="external">数値、日付、通貨の表示形式を設定する</a> で確認できます。</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <span itemprop="author">
+          Posted by <a href="/authors/#MURAKAMI_Masahiko">MURAKAMI Masahiko</a>
+        </span>
+      
+      <a data-url="http://blogs.kaizen-cloud.jp/2015/08/31/spreadsheet-number-format/" data-id="ciijp38ag0006swz6rwo36xlg" class="article-share-link">Share</a>
+      
+        <a href="http://blogs.kaizen-cloud.jp/2015/08/31/spreadsheet-number-format/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/AppsScript/">AppsScript</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2015/09/02/small-business-agile/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          中小エンドユーザーの業務効率化とアジャイル
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/06/02/gas-import-export/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Apps Scriptをインポート・エクスポートする</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AppsScript/">AppsScript</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Electron/">Electron</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Node-js/">Node.js</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring-RESTDocs/">Spring RESTDocs</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/agile/">agile</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gasify/">gasify</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/お知らせ/">お知らせ</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/AppsScript/" style="font-size: 20px;">AppsScript</a> <a href="/tags/Electron/" style="font-size: 10px;">Electron</a> <a href="/tags/Java/" style="font-size: 20px;">Java</a> <a href="/tags/Node-js/" style="font-size: 20px;">Node.js</a> <a href="/tags/Spring-RESTDocs/" style="font-size: 10px;">Spring RESTDocs</a> <a href="/tags/agile/" style="font-size: 10px;">agile</a> <a href="/tags/gasify/" style="font-size: 10px;">gasify</a> <a href="/tags/お知らせ/" style="font-size: 10px;">お知らせ</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Description</h3>
+    <div class="widget">
+      GoogleAppsをフル活用してお客様の業務効率化に日々邁進するエンジニアによるブログです。GoogleAppsScriptにこだわらず、幅広くゆるいテーマでお届けします。
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">12月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">11月 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">9月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">8月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">6月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">5月 2015</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2015/12/24/intruduce-gasify/">Google Apps Script でも require()したい</a>
+          </li>
+        
+          <li>
+            <a href="/2015/12/11/case-of-muranaka/">KAIZENクラウドのユーザー様事例を追加しました</a>
+          </li>
+        
+          <li>
+            <a href="/2015/11/11/Java-Bean-Mapping/">Java bean mappingでプチ感動＆プチ試行錯誤</a>
+          </li>
+        
+          <li>
+            <a href="/2015/11/08/nodefest-2015/">東京Node学園祭2015に行ってきた</a>
+          </li>
+        
+          <li>
+            <a href="/2015/11/04/electron-hands-on/">Electron ハンズオン</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2015 Eiwa System Management, Inc.
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/authors" class="mobile-nav-link">Authors</a>
+  
+</nav>
+    
+<script>
+  var disqus_shortname = 'kaizencloud';
+  
+  var disqus_url = 'http://blogs.kaizen-cloud.jp/2015/08/31/spreadsheet-number-format/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
+  <script src="/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
+
+
+<script src="/js/script.js" type="text/javascript"></script>
+
+  </div>
+</body>
+</html>
